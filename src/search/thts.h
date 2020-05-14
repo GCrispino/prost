@@ -188,9 +188,9 @@ public:
 
 private:
     // Main search functions
-    void visitDecisionNode(SearchNode* node);
-    void visitChanceNode(SearchNode* node);
-    void visitDummyChanceNode(SearchNode* node);
+    bool visitDecisionNode(SearchNode* node);
+    bool visitChanceNode(SearchNode* node);
+    bool visitDummyChanceNode(SearchNode* node);
 
     void initTrial();
     void initTrialStep();

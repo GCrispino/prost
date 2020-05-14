@@ -97,6 +97,7 @@ bool THTS::setValueFromString(std::string& param, std::string& value) {
         setMaxNumberOfTrials(atoi(value.c_str()));
         return true;
     } else if (param == "-ndn") {
+            std::cout << "HORIZON " << SearchEngine::horizon << " " << atoi(value.c_str()) << std::endl;
         if (value == "H") {
             setNumberOfNewDecisionNodesPerTrial(SearchEngine::horizon);
         } else {
@@ -298,11 +299,17 @@ void THTS::estimateBestActions(State const& _rootState,
 
     // Perform trials until some termination criterion is fullfilled
     while (moreTrials()) {
-        // Logger::logSeparator(Verbosity::DEBUG);
-        // Logger::logLine("TRIAL " + std::to_string(currentTrial+1),
-        //             Verbosity::DEBUG);
-
-        visitDecisionNode(currentRootNode);
+        std::cout <<
+        "---------------------------------------------------------" <<
+        std::endl;
+        std::cout << "TRIAL " << (currentTrial+1) << std::endl;
+        std::cout <<
+        "---------------------------------------------------------" <<
+        std::endl;
+        bool reachesGoal = visitDecisionNode(currentRootNode);
+        if (reachesGoal){
+            std::cout << "Trial reaches goal" << std::endl;
+        }
         ++currentTrial;
 
         // for(unsigned int i = 0; i < currentRootNode->children.size(); ++i) {
@@ -372,7 +379,11 @@ bool THTS::moreTrials() {
     return true;
 }
 
-void THTS::visitDecisionNode(SearchNode* node) {
+bool THTS::visitDecisionNode(SearchNode* node) {
+    //std::cout << std::endl << std::endl << "Current state is: " << std::endl;
+    //states[stepsToGoInCurrentState].printTrue(std::cout);
+    bool isGoal = isAGoalRewardLock(states[stepsToGoInCurrentState]);
+
     if (node == currentRootNode) {
         initTrial();
     } else {
@@ -382,11 +393,13 @@ void THTS::visitDecisionNode(SearchNode* node) {
         // Check if there is a "special" reason to stop this trial (currently,
         // this is the case if the state value of the current state is cached,
         // if it is a reward lock or if there is only one step left).
+        //std::cout << "  will call CurrentStateIsSolved" << std::endl;
         if (currentStateIsSolved(node)) {
+            //std::cout << "  current state is solved!" << std::endl;
             if (!tipNodeOfTrial) {
                 tipNodeOfTrial = node;
             }
-            return;
+            return isGoal;
         }
     }
 
@@ -403,12 +416,7 @@ void THTS::visitDecisionNode(SearchNode* node) {
         }
     }
 
-    // Logger::logLine("Current state is:", Verbosity::DEBUG);
-    // Logger::logLine(states[stepsToGoInCurrentState].toString(),
-    //             Verbosity::DEBUG);
-    // Logger::logLine("Reward is " + std::to_string(node->immediateReward),
-    //             Verbosity::DEBUG);
-
+    bool reachesGoal = isGoal;
     // Determine if we continue with this trial
     if (continueTrial(node)) {
         // Select the action that is simulated
@@ -448,9 +456,9 @@ void THTS::visitDecisionNode(SearchNode* node) {
 
         // Continue trial with chance nodes
         if (lastProbabilisticVarIndex < 0) {
-            visitDummyChanceNode(node->children[appliedActionIndex]);
+            reachesGoal |= visitDummyChanceNode(node->children[appliedActionIndex]);
         } else {
-            visitChanceNode(node->children[appliedActionIndex]);
+            reachesGoal |= visitChanceNode(node->children[appliedActionIndex]);
         }
 
         // Backup this node
@@ -474,6 +482,7 @@ void THTS::visitDecisionNode(SearchNode* node) {
         // The trial is finished
         trialReward = node->getExpectedRewardEstimate();
     }
+    return reachesGoal;
 }
 
 bool THTS::currentStateIsSolved(SearchNode* node) {
@@ -520,7 +529,7 @@ bool THTS::currentStateIsSolved(SearchNode* node) {
     return false;
 }
 
-void THTS::visitChanceNode(SearchNode* node) {
+bool THTS::visitChanceNode(SearchNode* node) {
     while (states[stepsToGoInNextState]
                .probabilisticStateFluentAsPD(chanceNodeVarIndex)
                .isDeterministic()) {
@@ -531,19 +540,21 @@ void THTS::visitChanceNode(SearchNode* node) {
         node, states[stepsToGoInNextState], chanceNodeVarIndex,
         lastProbabilisticVarIndex);
 
+    bool reachesGoal = false;
     if (chanceNodeVarIndex == lastProbabilisticVarIndex) {
         State::calcStateFluentHashKeys(states[stepsToGoInNextState]);
         State::calcStateHashKey(states[stepsToGoInNextState]);
 
-        visitDecisionNode(chosenOutcome);
+        reachesGoal = visitDecisionNode(chosenOutcome);
     } else {
         ++chanceNodeVarIndex;
-        visitChanceNode(chosenOutcome);
+        reachesGoal = visitChanceNode(chosenOutcome);
     }
     backupFunction->backupChanceNode(node, trialReward);
+    return reachesGoal;
 }
 
-void THTS::visitDummyChanceNode(SearchNode* node) {
+bool THTS::visitDummyChanceNode(SearchNode* node) {
     State::calcStateFluentHashKeys(states[stepsToGoInNextState]);
     State::calcStateHashKey(states[stepsToGoInNextState]);
 
@@ -553,8 +564,9 @@ void THTS::visitDummyChanceNode(SearchNode* node) {
     }
     assert(node->children.size() == 1);
 
-    visitDecisionNode(node->children[0]);
+    bool reachesGoal = visitDecisionNode(node->children[0]);
     backupFunction->backupChanceNode(node, trialReward);
+    return reachesGoal;
 }
 
 int THTS::getUniquePolicy() {

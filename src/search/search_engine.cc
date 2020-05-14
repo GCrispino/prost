@@ -339,6 +339,35 @@ void SearchEngine::estimateStateValue(State const& _rootState,
 // or max reward). This makes sense on the IPC 2011 domains, yet we might want
 // to change it in the future so keep an eye on it. Nevertheless, isARewardLock
 // is sound as is (and incomplete independently from this decision).
+bool ProbabilisticSearchEngine::isAGoalRewardLock(State const& current) const {
+    if (!useRewardLockDetection) {
+        return false;
+    }
+    assert(goalTestActionIndex >= 0);
+
+    // Calculate the reference reward
+    double reward = 0.0;
+    calcReward(current, goalTestActionIndex, reward);
+
+
+    if (MathUtils::doubleIsEqual(rewardCPF->getMaxVal(), reward)) {
+        // Check if current is known to be a goal
+        if (cacheRewardLocks && BDDIncludes(cachedGoals, current)) {
+            return true;
+        }
+
+        // Convert to Kleene state
+        KleeneState currentInKleene(current);
+        KleeneState::calcStateHashKey(currentInKleene);
+        KleeneState::calcStateFluentHashKeys(currentInKleene);
+
+        // cout << "Checking state: " << endl;
+        // printKleeneState(cout, currentInKleene);
+
+        return checkGoal(currentInKleene);
+    }
+    return false;
+}
 bool ProbabilisticSearchEngine::isARewardLock(State const& current) const {
     if (!useRewardLockDetection) {
         return false;

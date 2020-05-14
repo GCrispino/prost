@@ -21,6 +21,24 @@ string State::toCompactString() const {
     return ss.str();
 }
 
+void State::printTrue(ostream& out) const {
+    for (unsigned int index = 0;
+         index < State::numberOfDeterministicStateFluents; ++index) {
+        if (deterministicStateFluents[index]){
+            out << SearchEngine::deterministicCPFs[index]->name << ": ";
+            out << deterministicStateFluents[index] << endl;
+        }
+    }
+    out << endl;
+
+    for (unsigned int index = 0;
+         index < State::numberOfProbabilisticStateFluents; ++index) {
+        if (probabilisticStateFluents[index]){
+            out << SearchEngine::probabilisticCPFs[index]->name << ": ";
+            out << probabilisticStateFluents[index] << endl;
+        }
+    }
+}
 string State::toString() const {
     stringstream ss;
     for (size_t i = 0; i < State::numberOfDeterministicStateFluents; ++i) {
