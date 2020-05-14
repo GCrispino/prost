@@ -449,6 +449,7 @@ protected:
     // if it is a dead end or a goal, i.e., a reward lock with minimal or
     // maximal reward).
     bool isARewardLock(State const& current) const;
+    bool isAGoalRewardLock(State const& current) const;
 
     void printStateValueCacheUsage(
         std::string indent, Verbosity verbosity = Verbosity::VERBOSE) const;
