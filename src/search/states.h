@@ -337,6 +337,7 @@ public:
 
     virtual std::string toCompactString() const;
     virtual std::string toString() const;
+    virtual std::string toStringTrue() const;
 
     // The number of deterministic and probabilistic state fluents
     static int numberOfDeterministicStateFluents;
