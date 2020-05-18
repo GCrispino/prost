@@ -40,7 +40,9 @@ public:
 
     // Backup functions
     virtual void backupDecisionNodeLeaf(SearchNode* node,
-                                        double const& futReward);
+                                        double const& futReward,
+                                        float k_g = 1,
+                                        bool reachedGoal = false);
     virtual void backupDecisionNode(SearchNode* node);
     virtual void backupChanceNode(SearchNode* node,
                                   double const& futReward) = 0;

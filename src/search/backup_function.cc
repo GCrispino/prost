@@ -54,14 +54,23 @@ BackupFunction* BackupFunction::fromString(std::string& desc, THTS* thts) {
     return result;
 }
 
+// Utility function
+float u(float cost){
+    float lamb = -0.1;
+    return exp(lamb * cost);
+}
+
 /******************************************************************
                          Backup Function
 ******************************************************************/
 
 void BackupFunction::backupDecisionNodeLeaf(SearchNode* node,
-                                            double const& futReward) {
+                                            double const& futReward,
+                                            float k_g,
+                                            bool reachedGoal) {
     ++node->numberOfVisits;
-    node->futureReward = futReward;
+    float k = reachedGoal ? k_g : 0;
+    node->futureReward = u(-futReward) + k;
     node->_futureReward = futReward;
     node->solved = useSolveLabeling;
 
