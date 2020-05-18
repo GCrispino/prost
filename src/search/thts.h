@@ -65,13 +65,13 @@ struct SearchNode {
     }
 
     double getExpectedRewardEstimate() const {
-        //return immediateReward + _futureReward;
-        return immediateReward + futureReward;
+        return immediateReward + _futureReward;
+        //return immediateReward + futureReward;
     }
 
     double getExpectedFutureRewardEstimate() const {
-        //return _futureReward;
-        return futureReward;
+        return _futureReward;
+        //return futureReward;
     }
 
     std::string toString() const;
