@@ -491,12 +491,9 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
         // is taken care of by calcOptimalFinalReward)
         // TODO - Mudar isso pra ser uma variável da classe
         float k_g = 1;
-        float k = isGoal ? k_g : 0;
-        // TODO - Tirar isso. Só ta aí pra compilar
-        k = k;
 
         calcOptimalFinalReward(states[1], trialReward);
-        backupFunction->backupDecisionNodeLeaf(node, trialReward);
+        backupFunction->backupDecisionNodeLeaf(node, trialReward, k_g, isGoal);
         trialReward += node->immediateReward;
 
         return true;
