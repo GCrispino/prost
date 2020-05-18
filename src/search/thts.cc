@@ -394,7 +394,7 @@ bool THTS::visitDecisionNode(SearchNode* node) {
         // this is the case if the state value of the current state is cached,
         // if it is a reward lock or if there is only one step left).
         //std::cout << "  will call CurrentStateIsSolved" << std::endl;
-        if (currentStateIsSolved(node)) {
+        if (currentStateIsSolved(node, isGoal)) {
             //std::cout << "  current state is solved!" << std::endl;
             if (!tipNodeOfTrial) {
                 tipNodeOfTrial = node;
@@ -485,10 +485,15 @@ bool THTS::visitDecisionNode(SearchNode* node) {
     return reachesGoal;
 }
 
-bool THTS::currentStateIsSolved(SearchNode* node) {
+bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
     if (stepsToGoInCurrentState == 1) {
         // This node is a leaf (there is still a last decision, though, but that
         // is taken care of by calcOptimalFinalReward)
+        // TODO - Mudar isso pra ser uma variável da classe
+        float k_g = 1;
+        float k = isGoal ? k_g : 0;
+        // TODO - Tirar isso. Só ta aí pra compilar
+        k = k;
 
         calcOptimalFinalReward(states[1], trialReward);
         backupFunction->backupDecisionNodeLeaf(node, trialReward);
@@ -638,8 +643,13 @@ SearchNode* THTS::createDecisionNode(double const& prob) {
         res = new SearchNode(prob, stepsToGoInNextState);
         nodePool[lastUsedNodePoolIndex] = res;
     }
+    
     calcReward(states[stepsToGoInCurrentState], appliedActionIndex,
                res->immediateReward);
+    std::cout << "=======================" << std::endl;
+    std::cout << "Current state: " << states[stepsToGoInCurrentState].toStringTrue() << std::endl;
+    std::cout << "Calculated reward: " << res->immediateReward << std::endl;
+    std::cout << "=======================" << std::endl;
 
     ++lastUsedNodePoolIndex;
     return res;

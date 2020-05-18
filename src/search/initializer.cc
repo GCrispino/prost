@@ -162,12 +162,16 @@ void ExpandNodeInitializer::initialize(SearchNode* node, State const& current) {
             node->children[index] = thts->createChanceNode(1.0);
             node->children[index]->futureReward =
                 heuristicWeight * initialQValues[index];
+            node->children[index]->_futureReward =
+                heuristicWeight * initialQValues[index];
             node->children[index]->numberOfVisits = numberOfInitialVisits;
             node->children[index]->initialized = true;
 
             node->numberOfVisits += numberOfInitialVisits;
             node->futureReward = std::max(node->futureReward,
                                           node->children[index]->futureReward);
+            node->_futureReward = std::max(node->_futureReward,
+                                          node->children[index]->_futureReward);
 
             // Logger::logLine("Initialized child " +
             //                 SearchEngine::actionStates[index].toCompactString(),
@@ -218,11 +222,14 @@ void SingleChildInitializer::initialize(SearchNode* node,
     heuristic->estimateQValue(current, actionIndex, initialQValue);
 
     node->children[actionIndex]->futureReward = heuristicWeight * initialQValue;
+    node->children[actionIndex]->_futureReward = heuristicWeight * initialQValue;
     node->children[actionIndex]->numberOfVisits = numberOfInitialVisits;
     node->children[actionIndex]->initialized = true;
     node->numberOfVisits += numberOfInitialVisits;
     node->futureReward =
         std::max(node->futureReward, node->children[actionIndex]->futureReward);
+    node->_futureReward =
+        std::max(node->_futureReward, node->children[actionIndex]->_futureReward);
 
     node->initialized = (candidates.size() == 1);
 

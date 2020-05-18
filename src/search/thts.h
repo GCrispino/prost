@@ -39,6 +39,7 @@ struct SearchNode {
           prob(_prob),
           stepsToGo(_stepsToGo),
           futureReward(-std::numeric_limits<double>::max()),
+          _futureReward(-std::numeric_limits<double>::max()),
           numberOfVisits(0),
           initialized(false),
           solved(false) {}
@@ -57,16 +58,19 @@ struct SearchNode {
         prob = _prob;
         stepsToGo = _stepsToGo;
         futureReward = -std::numeric_limits<double>::max();
+        _futureReward = -std::numeric_limits<double>::max();
         numberOfVisits = 0;
         initialized = false;
         solved = false;
     }
 
     double getExpectedRewardEstimate() const {
+        //return immediateReward + _futureReward;
         return immediateReward + futureReward;
     }
 
     double getExpectedFutureRewardEstimate() const {
+        //return _futureReward;
         return futureReward;
     }
 
@@ -79,6 +83,7 @@ struct SearchNode {
     int stepsToGo;
 
     double futureReward;
+    double _futureReward;
     int numberOfVisits;
 
     // This is used in two ways: in decision nodes, it is true if all children
@@ -201,7 +206,7 @@ private:
     }
 
     // Determines if the current state has been solved before
-    bool currentStateIsSolved(SearchNode* node);
+    bool currentStateIsSolved(SearchNode* node, bool isGoal=false);
 
     // If the root state is a reward lock or has only one reasonable action,
     // noop or the only reasonable action is returned
