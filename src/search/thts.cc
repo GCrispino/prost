@@ -57,6 +57,7 @@ THTS::THTS(std::string _name)
     setRecommendationFunction(new ExpectedBestArmRecommendation(this));
 }
 
+float k_g = 1;
 bool THTS::setValueFromString(std::string& param, std::string& value) {
     // Check if this parameter encodes an ingredient
     if (param == "-act") {
@@ -490,7 +491,6 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
         // This node is a leaf (there is still a last decision, though, but that
         // is taken care of by calcOptimalFinalReward)
         // TODO - Mudar isso pra ser uma variável da classe
-        float k_g = 1;
 
         calcOptimalFinalReward(states[1], trialReward);
         backupFunction->backupDecisionNodeLeaf(node, trialReward, k_g, isGoal);
@@ -503,7 +503,7 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
         // This state has already been solved before
         trialReward = ProbabilisticSearchEngine::stateValueCache
             [states[stepsToGoInCurrentState]];
-        backupFunction->backupDecisionNodeLeaf(node, trialReward);
+        backupFunction->backupDecisionNodeLeaf(node, trialReward, k_g, isGoal);
         trialReward += node->immediateReward;
 
         ++cacheHits;
@@ -515,7 +515,7 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
 
         calcReward(states[stepsToGoInCurrentState], 0, trialReward);
         trialReward *= stepsToGoInCurrentState;
-        backupFunction->backupDecisionNodeLeaf(node, trialReward);
+        backupFunction->backupDecisionNodeLeaf(node, trialReward, k_g, isGoal);
         trialReward += node->immediateReward;
 
         if (cachingEnabled) {
