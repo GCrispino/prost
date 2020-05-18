@@ -62,6 +62,7 @@ void BackupFunction::backupDecisionNodeLeaf(SearchNode* node,
                                             double const& futReward) {
     ++node->numberOfVisits;
     node->futureReward = futReward;
+    node->_futureReward = futReward;
     node->solved = useSolveLabeling;
 
     // Logger::logLine("updated dec node leaf:", Verbosity::DEBUG);
@@ -79,10 +80,12 @@ void BackupFunction::backupDecisionNode(SearchNode* node) {
         return;
     }
 
-    double oldFutureReward = node->futureReward;
+    //double oldFutureReward = node->futureReward;
+    double oldFutureReward = node->_futureReward;
 
     // Propagate values from best child
     node->futureReward = -std::numeric_limits<double>::max();
+    node->_futureReward = -std::numeric_limits<double>::max();
     node->solved = useSolveLabeling;
     for (SearchNode* child : node->children) {
         if (child) {
@@ -90,6 +93,8 @@ void BackupFunction::backupDecisionNode(SearchNode* node) {
                 node->solved &= child->solved;
                 node->futureReward = std::max(
                     node->futureReward, child->getExpectedRewardEstimate());
+                node->_futureReward = std::max(
+                    node->_futureReward, child->getExpectedRewardEstimate());
             } else {
                 node->solved = false;
             }
@@ -100,7 +105,7 @@ void BackupFunction::backupDecisionNode(SearchNode* node) {
     // therefore do not need to update the rewards in preceding parents.
     if (!node->solved &&
         (node->stepsToGo > thts->getTipNodeOfTrial()->stepsToGo) &&
-        MathUtils::doubleIsEqual(oldFutureReward, node->futureReward)) {
+        MathUtils::doubleIsEqual(oldFutureReward, node->_futureReward)) {
         lockBackup = useBackupLock;
     }
 
@@ -135,6 +140,10 @@ void MCBackupFunction::backupChanceNode(SearchNode* node,
         node->futureReward +
         initialLearningRate * (futReward - node->futureReward) /
             (1.0 + (learningRateDecay * (double)node->numberOfVisits));
+    node->_futureReward =
+        node->_futureReward +
+        initialLearningRate * (futReward - node->_futureReward) /
+            (1.0 + (learningRateDecay * (double)node->numberOfVisits));
 
     // Logger::logLine("updated chance node:", Verbosity::DEBUG);
     // Logger::logLine(node->toString(), Verbosity::DEBUG);
@@ -150,6 +159,7 @@ void MaxMCBackupFunction::backupChanceNode(SearchNode* node,
 
     ++node->numberOfVisits;
     node->futureReward = 0.0;
+    node->_futureReward = 0.0;
     int numberOfChildVisits = 0;
 
     // Propagate values from children
@@ -157,11 +167,14 @@ void MaxMCBackupFunction::backupChanceNode(SearchNode* node,
         if (child) {
             node->futureReward +=
                 (child->numberOfVisits * child->getExpectedRewardEstimate());
+            node->_futureReward +=
+                (child->numberOfVisits * child->getExpectedRewardEstimate());
             numberOfChildVisits += child->numberOfVisits;
         }
     }
 
     node->futureReward /= numberOfChildVisits;
+    node->_futureReward /= numberOfChildVisits;
 
     // Logger::logLine("updated chance node:", Verbosity::DEBUG);
     // Logger::logLine(node->toString(), Verbosity::DEBUG);
@@ -183,12 +196,15 @@ void PBBackupFunction::backupChanceNode(SearchNode* node,
 
     // Propagate values from children
     node->futureReward = 0.0;
+    node->_futureReward = 0.0;
     double solvedSum = 0.0;
     double probSum = 0.0;
 
     for (SearchNode* child : node->children) {
         if (child) {
             node->futureReward +=
+                (child->prob * child->getExpectedRewardEstimate());
+            node->_futureReward +=
                 (child->prob * child->getExpectedRewardEstimate());
             probSum += child->prob;
 
@@ -199,6 +215,7 @@ void PBBackupFunction::backupChanceNode(SearchNode* node,
     }
 
     node->futureReward /= probSum;
+    node->_futureReward /= probSum;
     node->solved = MathUtils::doubleIsEqual(solvedSum, 1.0);
 
     // Logger::logLine("updated chance node:", Verbosity::DEBUG);
