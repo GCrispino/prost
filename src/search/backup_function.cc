@@ -9,10 +9,6 @@
 
 #include <iostream>
 
-float BackupFunction::u(float cost){
-    float lamb = -0.1;
-    return exp(lamb * cost);
-}
 /******************************************************************
                      Backup Function Creation
 ******************************************************************/
@@ -72,7 +68,7 @@ void BackupFunction::backupDecisionNodeLeaf(SearchNode* node,
     //std::cout << "Backup decision node leaf, futReward = " << futReward << std::endl;
     //std::cout << "goal: " << reachedGoal << std::endl;
     //std::cout << "old reward: " << node->futureReward << std::endl;
-    node->futureReward = u(-futReward) + k;
+    node->futureReward = utility_function(-futReward) + k;
     node->_futureReward = futReward;
     node->reachesGoal = reachedGoal;
     node->solved = useSolveLabeling;
@@ -153,7 +149,7 @@ void MCBackupFunction::backupChanceNode(SearchNode* node,
     ++node->numberOfVisits;
 
     float k = reachedGoal ? k_g : 0;
-    float utility = u(-futReward) + k;
+    float utility = utility_function(-futReward) + k;
     node->reachesGoal = reachedGoal;
     node->futureReward =
         node->futureReward +

@@ -2,6 +2,7 @@
 #define BACKUP_FUNCTION_H
 
 #include <string>
+#include "utils/math_utils.h"
 
 class THTS;
 class SearchNode;
@@ -54,18 +55,17 @@ public:
     virtual void printStepStatistics(std::string indent) const;
     virtual void printRoundStatistics(std::string /*indent*/) const {}
     
-    // Utility function
-    static float u(float cost);
-
 protected:
     BackupFunction(THTS* _thts,
                    std::string _name,
                    bool _useSolveLabeling = false,
-                   bool _useBackupLock = false)
+                   bool _useBackupLock = false,
+                   float (*_utility_function) (float) = MathUtils::u)
         : thts(_thts),
           name(_name),
           useSolveLabeling(_useSolveLabeling),
-          useBackupLock(_useBackupLock) {}
+          useBackupLock(_useBackupLock),
+          utility_function(_utility_function) {}
 
     THTS* thts;
 
@@ -84,6 +84,9 @@ protected:
 
     // Tests which access private members
     friend class BFSTestSearch;
+
+    // Utility function
+    float (*utility_function)(float);
 };
 
 /******************************************************************

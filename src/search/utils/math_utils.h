@@ -65,6 +65,12 @@ public:
     // Random number generator
     static std::unique_ptr<Random<>> rnd;
 
+    // utility function
+    static float u(float cost){
+        float lamb = -0.1;
+        return exp(lamb * cost);
+    }
+
 private:
     MathUtils() {}
 };
