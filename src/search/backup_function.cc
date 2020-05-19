@@ -60,15 +60,14 @@ BackupFunction* BackupFunction::fromString(std::string& desc, THTS* thts) {
 
 void BackupFunction::backupDecisionNodeLeaf(SearchNode* node,
                                             double const& futReward,
-                                            float k_g,
                                             bool reachedGoal) {
     ++node->numberOfVisits;
-    float k = reachedGoal ? k_g : 0;
+    float k = reachedGoal ? node->k_g : 0;
     //std:: cout << "========================" << std::endl;
     //std::cout << "Backup decision node leaf, futReward = " << futReward << std::endl;
     //std::cout << "goal: " << reachedGoal << std::endl;
     //std::cout << "old reward: " << node->futureReward << std::endl;
-    node->futureReward = utility_function(-futReward) + k;
+    node->futureReward = node->utility_function(-futReward) + k;
     node->_futureReward = futReward;
     node->reachesGoal = reachedGoal;
     node->solved = useSolveLabeling;
@@ -144,12 +143,11 @@ bool MCBackupFunction::setValueFromString(std::string& param,
 
 void MCBackupFunction::backupChanceNode(SearchNode* node,
                                         double const& futReward,
-                                            float k_g,
                                             bool reachedGoal) {
     ++node->numberOfVisits;
 
-    float k = reachedGoal ? k_g : 0;
-    float utility = utility_function(-futReward) + k;
+    float k = reachedGoal ? node->k_g : 0;
+    float utility = node->utility_function(-futReward) + k;
     node->reachesGoal = reachedGoal;
     node->futureReward =
         node->futureReward +
@@ -171,14 +169,11 @@ void MCBackupFunction::backupChanceNode(SearchNode* node,
 
 void MaxMCBackupFunction::backupChanceNode(SearchNode* node,
                                            double const& /*futReward*/,
-                                        float k_g,
                                         bool reachedGoal) {
     assert(MathUtils::doubleIsEqual(node->immediateReward, 0.0));
     // gambiarra
     //========
-    int x = k_g + 1;
     bool y = reachedGoal;
-    x = x;
     y = y;
     //========
 
@@ -211,13 +206,10 @@ void MaxMCBackupFunction::backupChanceNode(SearchNode* node,
 
 void PBBackupFunction::backupChanceNode(SearchNode* node,
                                         double const& /*futReward*/,
-                                        float k_g,
                                         bool reachedGoal) {
     // gambiarra
     //========
-    int x = k_g + 1;
     bool y = reachedGoal;
-    x = x;
     y = y;
     //========
     assert(MathUtils::doubleIsEqual(node->immediateReward, 0.0));

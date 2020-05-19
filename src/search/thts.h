@@ -44,7 +44,9 @@ struct SearchNode {
           reachesGoal(false),
           numberOfVisits(0),
           initialized(false),
-          solved(false) {}
+          solved(false),
+          utility_function(MathUtils::u),
+          k_g(1){}
 
     ~SearchNode() {
         for (unsigned int i = 0; i < children.size(); ++i) {
@@ -66,19 +68,12 @@ struct SearchNode {
         solved = false;
     }
     
-    // Utility function
-    static float u(float cost){
-        float lamb = -0.1;
-        return exp(lamb * cost);
-    }
-    static float k_g;
-
     double _getExpectedRewardEstimate() const {
         return immediateReward + _futureReward;
     }
     double getExpectedRewardEstimate() const {
         float k = reachesGoal ? k_g : 0;
-        return u(-(immediateReward + futureReward)) + k;
+        return utility_function(-(immediateReward + futureReward)) + k;
     }
 
     double _getExpectedFutureRewardEstimate() const {
@@ -111,6 +106,10 @@ struct SearchNode {
 
     // A node is solved if futureReward is equal to the true future reward
     bool solved;
+    
+    // Utility function
+    float (*utility_function)(float);
+    float k_g;
 };
 
 class THTS : public ProbabilisticSearchEngine {

@@ -11,7 +11,6 @@
 
 #include <sstream>
 
-float SearchNode::k_g = 1;
 std::string SearchNode::toString() const {
     std::stringstream ss;
     if (solved) {
@@ -565,7 +564,7 @@ bool THTS::visitChanceNode(SearchNode* node) {
         ++chanceNodeVarIndex;
         reachesGoal = visitChanceNode(chosenOutcome);
     }
-    backupFunction->backupChanceNode(node, trialReward, SearchNode::k_g, reachesGoal);
+    backupFunction->backupChanceNode(node, trialReward, reachesGoal);
     return reachesGoal;
 }
 
@@ -580,7 +579,7 @@ bool THTS::visitDummyChanceNode(SearchNode* node) {
     assert(node->children.size() == 1);
 
     bool reachesGoal = visitDecisionNode(node->children[0]);
-    backupFunction->backupChanceNode(node, trialReward, SearchNode::k_g, reachesGoal);
+    backupFunction->backupChanceNode(node, trialReward, reachesGoal);
     return reachesGoal;
 }
 

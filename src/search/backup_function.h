@@ -42,12 +42,10 @@ public:
     // Backup functions
     virtual void backupDecisionNodeLeaf(SearchNode* node,
                                         double const& futReward,
-                                        float k_g = 1,
                                         bool reachedGoal = false);
     virtual void backupDecisionNode(SearchNode* node, bool reachedGoal = false);
     virtual void backupChanceNode(SearchNode* node,
                                   double const& futReward,
-                                        float k_g = 1,
                                         bool reachedGoal = false) = 0;
 
     // Prints statistics
@@ -59,13 +57,11 @@ protected:
     BackupFunction(THTS* _thts,
                    std::string _name,
                    bool _useSolveLabeling = false,
-                   bool _useBackupLock = false,
-                   float (*_utility_function) (float) = MathUtils::u)
+                   bool _useBackupLock = false)
         : thts(_thts),
           name(_name),
           useSolveLabeling(_useSolveLabeling),
-          useBackupLock(_useBackupLock),
-          utility_function(_utility_function) {}
+          useBackupLock(_useBackupLock) {}
 
     THTS* thts;
 
@@ -84,9 +80,6 @@ protected:
 
     // Tests which access private members
     friend class BFSTestSearch;
-
-    // Utility function
-    float (*utility_function)(float);
 };
 
 /******************************************************************
@@ -114,7 +107,6 @@ public:
 
     // Backup functions
     void backupChanceNode(SearchNode* node, double const& futReward,
-                                        float k_g = 1,
                                         bool reachedGoal = false) override;
 
     // Prints statistics
@@ -135,7 +127,6 @@ public:
 
     // Backup functions
     void backupChanceNode(SearchNode* node, double const& futReward,
-                                        float k_g = 1,
                                         bool reachedGoal = false) override;
 };
 
@@ -149,7 +140,6 @@ public:
 
     // Backup functions
     void backupChanceNode(SearchNode* node, double const& futReward,
-                                        float k_g = 1,
                                         bool reachedGoal = false) override;
 };
 
