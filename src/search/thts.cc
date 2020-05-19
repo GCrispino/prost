@@ -492,7 +492,7 @@ bool THTS::visitDecisionNode(SearchNode* node) {
     return reachesGoal;
 }
 
-bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
+bool THTS::currentStateIsSolved(SearchNode* node, bool &isGoal) {
     if (stepsToGoInCurrentState == 1) {
         // This node is a leaf (there is still a last decision, though, but that
         // is taken care of by calcOptimalFinalReward)
@@ -501,7 +501,8 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
         calcOptimalFinalReward(states[1], trialReward);
         //std::cout << "trial reward after: " << trialReward << std::endl;
         //std::cout << "1.Will backup decision node leaf. State: " << states[stepsToGoInCurrentState].toStringTrue() <<  ". goal = " << isGoal << ", " << isAGoalRewardLock(states[stepsToGoInCurrentState]) << std::endl;
-        backupFunction->backupDecisionNodeLeaf(node, trialReward, SearchNode::k_g, isAGoalRewardLock(states[stepsToGoInCurrentState]));
+        isGoal = isAGoalRewardLock(states[stepsToGoInCurrentState]);
+        backupFunction->backupDecisionNodeLeaf(node, trialReward, isGoal);
         trialReward += node->immediateReward;
 
         return true;
@@ -512,7 +513,8 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
         trialReward = ProbabilisticSearchEngine::stateValueCache
             [states[stepsToGoInCurrentState]];
         //std::cout << "2.Will backup decision node leaf. State: " << states[stepsToGoInCurrentState].toStringTrue() <<  ". goal = " << isGoal << ", " << isAGoalRewardLock(states[stepsToGoInCurrentState]) << std::endl;
-        backupFunction->backupDecisionNodeLeaf(node, trialReward, SearchNode::k_g, isAGoalRewardLock(states[stepsToGoInCurrentState]));
+        isGoal = isAGoalRewardLock(states[stepsToGoInCurrentState]);
+        backupFunction->backupDecisionNodeLeaf(node, trialReward, isGoal);
         trialReward += node->immediateReward;
 
         ++cacheHits;
@@ -525,7 +527,8 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
         calcReward(states[stepsToGoInCurrentState], 0, trialReward);
         trialReward *= stepsToGoInCurrentState;
         //std::cout << "3.Will backup decision node leaf. State: " << states[stepsToGoInCurrentState].toStringTrue() << ". goal = " << isGoal << ", " << isAGoalRewardLock(states[stepsToGoInCurrentState]) << std::endl;
-        backupFunction->backupDecisionNodeLeaf(node, trialReward, SearchNode::k_g, isAGoalRewardLock(states[stepsToGoInCurrentState]));
+        isGoal = isAGoalRewardLock(states[stepsToGoInCurrentState]);
+        backupFunction->backupDecisionNodeLeaf(node, trialReward, isGoal);
         trialReward += node->immediateReward;
 
         if (cachingEnabled) {

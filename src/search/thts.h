@@ -223,7 +223,7 @@ private:
     }
 
     // Determines if the current state has been solved before
-    bool currentStateIsSolved(SearchNode* node, bool isGoal=false);
+    bool currentStateIsSolved(SearchNode* node, bool &isGoal);
 
     // If the root state is a reward lock or has only one reasonable action,
     // noop or the only reasonable action is returned
