@@ -11,6 +11,7 @@
 
 #include <sstream>
 
+float SearchNode::k_g = 1;
 std::string SearchNode::toString() const {
     std::stringstream ss;
     if (solved) {
@@ -57,7 +58,6 @@ THTS::THTS(std::string _name)
     setRecommendationFunction(new ExpectedBestArmRecommendation(this));
 }
 
-float k_g = 1;
 bool THTS::setValueFromString(std::string& param, std::string& value) {
     // Check if this parameter encodes an ingredient
     if (param == "-act") {
@@ -382,8 +382,11 @@ bool THTS::moreTrials() {
 
 bool THTS::visitDecisionNode(SearchNode* node) {
     //std::cout << std::endl << std::endl << "Current state is: " << std::endl;
-    //states[stepsToGoInCurrentState].printTrue(std::cout);
+    std::cout << states[stepsToGoInCurrentState].toStringTrue() << std::endl;
     bool isGoal = isAGoalRewardLock(states[stepsToGoInCurrentState]);
+    if (isGoal){
+        //std::cout << "goal!!!!!!!!!!!!!!" << std::endl;
+    }
 
     if (node == currentRootNode) {
         initTrial();
@@ -463,7 +466,7 @@ bool THTS::visitDecisionNode(SearchNode* node) {
         }
 
         // Backup this node
-        backupFunction->backupDecisionNode(node);
+        backupFunction->backupDecisionNode(node, reachesGoal);
         trialReward += node->immediateReward;
 
         // If the backup function labeled the node as solved, we store the
@@ -476,12 +479,15 @@ bool THTS::visitDecisionNode(SearchNode* node) {
                     ProbabilisticSearchEngine::stateValueCache.end()) {
                 ProbabilisticSearchEngine::stateValueCache
                     [states[node->stepsToGo]] =
-                        node->getExpectedFutureRewardEstimate();
+                        node->_getExpectedFutureRewardEstimate();
             }
         }
     } else {
         // The trial is finished
-        trialReward = node->getExpectedRewardEstimate();
+        trialReward = node->_getExpectedRewardEstimate();
+    }
+    if (reachesGoal){
+        std::cout << "REACHES GOAL" << std::endl;
     }
     return reachesGoal;
 }
@@ -490,10 +496,12 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
     if (stepsToGoInCurrentState == 1) {
         // This node is a leaf (there is still a last decision, though, but that
         // is taken care of by calcOptimalFinalReward)
-        // TODO - Mudar isso pra ser uma variável da classe
 
+        //std::cout << "will calc optimal final reward. trial reward before: " << trialReward << std::endl;
         calcOptimalFinalReward(states[1], trialReward);
-        backupFunction->backupDecisionNodeLeaf(node, trialReward, k_g, isGoal);
+        //std::cout << "trial reward after: " << trialReward << std::endl;
+        //std::cout << "1.Will backup decision node leaf. State: " << states[stepsToGoInCurrentState].toStringTrue() <<  ". goal = " << isGoal << ", " << isAGoalRewardLock(states[stepsToGoInCurrentState]) << std::endl;
+        backupFunction->backupDecisionNodeLeaf(node, trialReward, SearchNode::k_g, isAGoalRewardLock(states[stepsToGoInCurrentState]));
         trialReward += node->immediateReward;
 
         return true;
@@ -503,7 +511,8 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
         // This state has already been solved before
         trialReward = ProbabilisticSearchEngine::stateValueCache
             [states[stepsToGoInCurrentState]];
-        backupFunction->backupDecisionNodeLeaf(node, trialReward, k_g, isGoal);
+        //std::cout << "2.Will backup decision node leaf. State: " << states[stepsToGoInCurrentState].toStringTrue() <<  ". goal = " << isGoal << ", " << isAGoalRewardLock(states[stepsToGoInCurrentState]) << std::endl;
+        backupFunction->backupDecisionNodeLeaf(node, trialReward, SearchNode::k_g, isAGoalRewardLock(states[stepsToGoInCurrentState]));
         trialReward += node->immediateReward;
 
         ++cacheHits;
@@ -515,7 +524,8 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
 
         calcReward(states[stepsToGoInCurrentState], 0, trialReward);
         trialReward *= stepsToGoInCurrentState;
-        backupFunction->backupDecisionNodeLeaf(node, trialReward, k_g, isGoal);
+        //std::cout << "3.Will backup decision node leaf. State: " << states[stepsToGoInCurrentState].toStringTrue() << ". goal = " << isGoal << ", " << isAGoalRewardLock(states[stepsToGoInCurrentState]) << std::endl;
+        backupFunction->backupDecisionNodeLeaf(node, trialReward, SearchNode::k_g, isAGoalRewardLock(states[stepsToGoInCurrentState]));
         trialReward += node->immediateReward;
 
         if (cachingEnabled) {
@@ -524,7 +534,7 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool isGoal) {
                    ProbabilisticSearchEngine::stateValueCache.end());
             ProbabilisticSearchEngine::stateValueCache
                 [states[stepsToGoInCurrentState]] =
-                    node->getExpectedFutureRewardEstimate();
+                    node->_getExpectedFutureRewardEstimate();
         }
         return true;
     }
@@ -552,7 +562,7 @@ bool THTS::visitChanceNode(SearchNode* node) {
         ++chanceNodeVarIndex;
         reachesGoal = visitChanceNode(chosenOutcome);
     }
-    backupFunction->backupChanceNode(node, trialReward);
+    backupFunction->backupChanceNode(node, trialReward, SearchNode::k_g, reachesGoal);
     return reachesGoal;
 }
 
@@ -567,7 +577,7 @@ bool THTS::visitDummyChanceNode(SearchNode* node) {
     assert(node->children.size() == 1);
 
     bool reachesGoal = visitDecisionNode(node->children[0]);
-    backupFunction->backupChanceNode(node, trialReward);
+    backupFunction->backupChanceNode(node, trialReward, SearchNode::k_g, reachesGoal);
     return reachesGoal;
 }
 
@@ -643,10 +653,10 @@ SearchNode* THTS::createDecisionNode(double const& prob) {
     
     calcReward(states[stepsToGoInCurrentState], appliedActionIndex,
                res->immediateReward);
-    std::cout << "=======================" << std::endl;
-    std::cout << "Current state: " << states[stepsToGoInCurrentState].toStringTrue() << std::endl;
-    std::cout << "Calculated reward: " << res->immediateReward << std::endl;
-    std::cout << "=======================" << std::endl;
+    //std::cout << "=======================" << std::endl;
+    //std::cout << "Current state: " << states[stepsToGoInCurrentState].toStringTrue() << std::endl;
+    //std::cout << "Calculated reward: " << res->immediateReward << std::endl;
+    //std::cout << "=======================" << std::endl;
 
     ++lastUsedNodePoolIndex;
     return res;

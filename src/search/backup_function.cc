@@ -9,6 +9,10 @@
 
 #include <iostream>
 
+float BackupFunction::u(float cost){
+    float lamb = -0.1;
+    return exp(lamb * cost);
+}
 /******************************************************************
                      Backup Function Creation
 ******************************************************************/
@@ -54,12 +58,6 @@ BackupFunction* BackupFunction::fromString(std::string& desc, THTS* thts) {
     return result;
 }
 
-// Utility function
-float u(float cost){
-    float lamb = -0.1;
-    return exp(lamb * cost);
-}
-
 /******************************************************************
                          Backup Function
 ******************************************************************/
@@ -70,15 +68,22 @@ void BackupFunction::backupDecisionNodeLeaf(SearchNode* node,
                                             bool reachedGoal) {
     ++node->numberOfVisits;
     float k = reachedGoal ? k_g : 0;
+    //std:: cout << "========================" << std::endl;
+    //std::cout << "Backup decision node leaf, futReward = " << futReward << std::endl;
+    //std::cout << "goal: " << reachedGoal << std::endl;
+    //std::cout << "old reward: " << node->futureReward << std::endl;
     node->futureReward = u(-futReward) + k;
     node->_futureReward = futReward;
+    node->reachesGoal = reachedGoal;
     node->solved = useSolveLabeling;
+    //std::cout << "new reward: " << node->futureReward << std::endl;
+    //std::cout << "========================" << std::endl;
 
     // Logger::logLine("updated dec node leaf:", Verbosity::DEBUG);
     // Logger::logLine(node->toString(), Verbosity::DEBUG);
 }
 
-void BackupFunction::backupDecisionNode(SearchNode* node) {
+void BackupFunction::backupDecisionNode(SearchNode* node, bool reachedGoal) {
     assert(!node->children.empty());
     assert(thts->getTipNodeOfTrial());
 
@@ -89,12 +94,12 @@ void BackupFunction::backupDecisionNode(SearchNode* node) {
         return;
     }
 
-    //double oldFutureReward = node->futureReward;
-    double oldFutureReward = node->_futureReward;
+    double oldFutureReward = node->futureReward;
 
     // Propagate values from best child
     node->futureReward = -std::numeric_limits<double>::max();
     node->_futureReward = -std::numeric_limits<double>::max();
+    node->reachesGoal = reachedGoal;
     node->solved = useSolveLabeling;
     for (SearchNode* child : node->children) {
         if (child) {
@@ -103,7 +108,7 @@ void BackupFunction::backupDecisionNode(SearchNode* node) {
                 node->futureReward = std::max(
                     node->futureReward, child->getExpectedRewardEstimate());
                 node->_futureReward = std::max(
-                    node->_futureReward, child->getExpectedRewardEstimate());
+                    node->_futureReward, child->_getExpectedRewardEstimate());
             } else {
                 node->solved = false;
             }
@@ -114,7 +119,7 @@ void BackupFunction::backupDecisionNode(SearchNode* node) {
     // therefore do not need to update the rewards in preceding parents.
     if (!node->solved &&
         (node->stepsToGo > thts->getTipNodeOfTrial()->stepsToGo) &&
-        MathUtils::doubleIsEqual(oldFutureReward, node->_futureReward)) {
+        MathUtils::doubleIsEqual(oldFutureReward, node->futureReward)) {
         lockBackup = useBackupLock;
     }
 
@@ -142,12 +147,18 @@ bool MCBackupFunction::setValueFromString(std::string& param,
 }
 
 void MCBackupFunction::backupChanceNode(SearchNode* node,
-                                        double const& futReward) {
+                                        double const& futReward,
+                                            float k_g,
+                                            bool reachedGoal) {
     ++node->numberOfVisits;
 
+    float k = reachedGoal ? k_g : 0;
+    float utility = u(-futReward) + k;
+    node->reachesGoal = reachedGoal;
     node->futureReward =
         node->futureReward +
-        initialLearningRate * (futReward - node->futureReward) /
+        initialLearningRate * (utility - node->futureReward) /
+        //initialLearningRate * (futReward - node->futureReward) /
             (1.0 + (learningRateDecay * (double)node->numberOfVisits));
     node->_futureReward =
         node->_futureReward +
@@ -163,8 +174,17 @@ void MCBackupFunction::backupChanceNode(SearchNode* node,
 ******************************************************************/
 
 void MaxMCBackupFunction::backupChanceNode(SearchNode* node,
-                                           double const& /*futReward*/) {
+                                           double const& /*futReward*/,
+                                        float k_g,
+                                        bool reachedGoal) {
     assert(MathUtils::doubleIsEqual(node->immediateReward, 0.0));
+    // gambiarra
+    //========
+    int x = k_g + 1;
+    bool y = reachedGoal;
+    x = x;
+    y = y;
+    //========
 
     ++node->numberOfVisits;
     node->futureReward = 0.0;
@@ -177,7 +197,7 @@ void MaxMCBackupFunction::backupChanceNode(SearchNode* node,
             node->futureReward +=
                 (child->numberOfVisits * child->getExpectedRewardEstimate());
             node->_futureReward +=
-                (child->numberOfVisits * child->getExpectedRewardEstimate());
+                (child->numberOfVisits * child->_getExpectedRewardEstimate());
             numberOfChildVisits += child->numberOfVisits;
         }
     }
@@ -194,7 +214,16 @@ void MaxMCBackupFunction::backupChanceNode(SearchNode* node,
 ******************************************************************/
 
 void PBBackupFunction::backupChanceNode(SearchNode* node,
-                                        double const& /*futReward*/) {
+                                        double const& /*futReward*/,
+                                        float k_g,
+                                        bool reachedGoal) {
+    // gambiarra
+    //========
+    int x = k_g + 1;
+    bool y = reachedGoal;
+    x = x;
+    y = y;
+    //========
     assert(MathUtils::doubleIsEqual(node->immediateReward, 0.0));
 
     ++node->numberOfVisits;

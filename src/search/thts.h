@@ -32,6 +32,7 @@ class RecommendationFunction;
 
 // Add ingredients by deriving from the corresponding class.
 
+
 struct SearchNode {
     SearchNode(double const& _prob, int const& _stepsToGo)
         : children(),
@@ -40,6 +41,7 @@ struct SearchNode {
           stepsToGo(_stepsToGo),
           futureReward(-std::numeric_limits<double>::max()),
           _futureReward(-std::numeric_limits<double>::max()),
+          reachesGoal(false),
           numberOfVisits(0),
           initialized(false),
           solved(false) {}
@@ -63,14 +65,28 @@ struct SearchNode {
         initialized = false;
         solved = false;
     }
+    
+    // Utility function
+    static float u(float cost){
+        float lamb = -0.1;
+        return exp(lamb * cost);
+    }
+    static float k_g;
 
-    double getExpectedRewardEstimate() const {
+    double _getExpectedRewardEstimate() const {
         return immediateReward + _futureReward;
-        //return immediateReward + futureReward;
+    }
+    double getExpectedRewardEstimate() const {
+        float k = reachesGoal ? k_g : 0;
+        return u(-(immediateReward + futureReward)) + k;
     }
 
-    double getExpectedFutureRewardEstimate() const {
+    double _getExpectedFutureRewardEstimate() const {
         return _futureReward;
+        //return futureReward;
+    }
+    double getExpectedFutureRewardEstimate() const {
+        return futureReward;
         //return futureReward;
     }
 
@@ -84,6 +100,7 @@ struct SearchNode {
 
     double futureReward;
     double _futureReward;
+    bool reachesGoal;
     int numberOfVisits;
 
     // This is used in two ways: in decision nodes, it is true if all children

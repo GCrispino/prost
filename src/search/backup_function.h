@@ -43,14 +43,19 @@ public:
                                         double const& futReward,
                                         float k_g = 1,
                                         bool reachedGoal = false);
-    virtual void backupDecisionNode(SearchNode* node);
+    virtual void backupDecisionNode(SearchNode* node, bool reachedGoal = false);
     virtual void backupChanceNode(SearchNode* node,
-                                  double const& futReward) = 0;
+                                  double const& futReward,
+                                        float k_g = 1,
+                                        bool reachedGoal = false) = 0;
 
     // Prints statistics
     virtual void printConfig(std::string indent) const;
     virtual void printStepStatistics(std::string indent) const;
     virtual void printRoundStatistics(std::string /*indent*/) const {}
+    
+    // Utility function
+    static float u(float cost);
 
 protected:
     BackupFunction(THTS* _thts,
@@ -105,7 +110,9 @@ public:
     }
 
     // Backup functions
-    void backupChanceNode(SearchNode* node, double const& futReward) override;
+    void backupChanceNode(SearchNode* node, double const& futReward,
+                                        float k_g = 1,
+                                        bool reachedGoal = false) override;
 
     // Prints statistics
     void printConfig(std::string indent) const override;
@@ -124,7 +131,9 @@ public:
     MaxMCBackupFunction(THTS* _thts) : BackupFunction(_thts, "MaxMonteCarlo backup") {}
 
     // Backup functions
-    void backupChanceNode(SearchNode* node, double const& futReward) override;
+    void backupChanceNode(SearchNode* node, double const& futReward,
+                                        float k_g = 1,
+                                        bool reachedGoal = false) override;
 };
 
 /******************************************************************
@@ -136,7 +145,9 @@ public:
     PBBackupFunction(THTS* _thts) : BackupFunction(_thts, "PartialBellman backup", true, true) {}
 
     // Backup functions
-    void backupChanceNode(SearchNode* node, double const& futReward) override;
+    void backupChanceNode(SearchNode* node, double const& futReward,
+                                        float k_g = 1,
+                                        bool reachedGoal = false) override;
 };
 
 #endif
