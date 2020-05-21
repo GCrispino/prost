@@ -161,7 +161,7 @@ void ExpandNodeInitializer::initialize(SearchNode* node, State const& current) {
         if (actionsToExpand[index] == index) {
             node->children[index] = thts->createChanceNode(1.0);
             node->children[index]->futureReward =
-                heuristicWeight * initialQValues[index];
+                node->utility_function(-(heuristicWeight * initialQValues[index]));
             node->children[index]->_futureReward =
                 heuristicWeight * initialQValues[index];
             node->children[index]->numberOfVisits = numberOfInitialVisits;
@@ -221,7 +221,7 @@ void SingleChildInitializer::initialize(SearchNode* node,
     double initialQValue = 0.0;
     heuristic->estimateQValue(current, actionIndex, initialQValue);
 
-    node->children[actionIndex]->futureReward = heuristicWeight * initialQValue;
+    node->children[actionIndex]->futureReward = node->utility_function(-(heuristicWeight * initialQValue));
     node->children[actionIndex]->_futureReward = heuristicWeight * initialQValue;
     node->children[actionIndex]->numberOfVisits = numberOfInitialVisits;
     node->children[actionIndex]->initialized = true;
