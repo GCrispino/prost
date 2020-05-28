@@ -37,6 +37,7 @@ struct SearchNode {
     SearchNode(double const& _prob, int const& _stepsToGo)
         : children(),
           immediateReward(0.0),
+          cumulativeCost(0.0),
           prob(_prob),
           stepsToGo(_stepsToGo),
           futureReward(-std::numeric_limits<double>::max()),
@@ -59,6 +60,7 @@ struct SearchNode {
     void reset(double const& _prob, int const& _stepsToGo) {
         children.clear();
         immediateReward = 0.0;
+        cumulativeCost = 0.0;
         prob = _prob;
         stepsToGo = _stepsToGo;
         futureReward = -std::numeric_limits<double>::max();
@@ -72,8 +74,14 @@ struct SearchNode {
         return immediateReward + _futureReward;
     }
     double getExpectedRewardEstimate() const {
-        float k = reachesGoal ? k_g : 0;
-        return utility_function(-(immediateReward + futureReward)) + k;
+        //float k = reachesGoal ? k_g : 0;
+        float cost = cumulativeCost;
+        //return utility_function(-(immediateReward + _futureReward)) + k;
+        //std::cout << cost << ", " << immediateReward << ", " << utility_function(cost) << ", ";
+        //std::cout << utility_function(cost - immediateReward) << ", ";
+        //std::cout << futureReward << ", " << utility_function(cost) - utility_function(cost - immediateReward) + futureReward << std::endl;
+
+        return utility_function(cost - immediateReward) - utility_function(cost) + futureReward;
     }
 
     double _getExpectedFutureRewardEstimate() const {
@@ -90,6 +98,7 @@ struct SearchNode {
     std::vector<SearchNode*> children;
 
     double immediateReward;
+    double cumulativeCost;
     double prob;
     int stepsToGo;
 
@@ -190,8 +199,8 @@ public:
 
     // Methods to create search nodes
     SearchNode* createRootNode();
-    SearchNode* createDecisionNode(double const& _prob);
-    SearchNode* createChanceNode(double const& _prob);
+    SearchNode* createDecisionNode(double const& _prob, double const curCumCost);
+    SearchNode* createChanceNode(double const& _prob, double const curCumCost);
 
     // Methods that return certain nodes of the explicated tree
     SearchNode const* getCurrentRootNode() const {
@@ -255,8 +264,8 @@ private:
     int stepsToGoInNextState;
     int appliedActionIndex;
 
-    // The accumulated reward that has been achieved in the current trial (the
-    // rewards are accumulated in reverse order during the backup phase, such
+    // The accumulative reward that has been achieved in the current trial (the
+    // rewards are accumulative in reverse order during the backup phase, such
     // that it reflects the future reward in each node when it is backed up)
     double trialReward;
 

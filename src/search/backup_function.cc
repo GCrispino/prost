@@ -100,6 +100,11 @@ void BackupFunction::backupDecisionNode(SearchNode* node, bool reachedGoal) {
         if (child) {
             if (child->initialized) {
                 node->solved &= child->solved;
+                //std::cout << "Child. Future reward: " << child->_futureReward << ". ";
+                //std::cout << "Immediate reward: " << child->immediateReward << ". ";
+                //std::cout << "Reaches goal: " << child->reachesGoal << ". ";
+                //std::cout << "Future utility: " << child->futureReward << ". ";
+                //std::cout << "Utility estimate: " << child->getExpectedRewardEstimate() << std::endl;
                 node->futureReward = std::max(
                     node->futureReward, child->getExpectedRewardEstimate());
                 node->_futureReward = std::max(
@@ -171,15 +176,11 @@ void MaxMCBackupFunction::backupChanceNode(SearchNode* node,
                                            double const& /*futReward*/,
                                         bool reachedGoal) {
     assert(MathUtils::doubleIsEqual(node->immediateReward, 0.0));
-    // gambiarra
-    //========
-    bool y = reachedGoal;
-    y = y;
-    //========
 
     ++node->numberOfVisits;
     node->futureReward = 0.0;
     node->_futureReward = 0.0;
+    node->reachesGoal = reachedGoal;
     int numberOfChildVisits = 0;
 
     // Propagate values from children
@@ -207,11 +208,6 @@ void MaxMCBackupFunction::backupChanceNode(SearchNode* node,
 void PBBackupFunction::backupChanceNode(SearchNode* node,
                                         double const& /*futReward*/,
                                         bool reachedGoal) {
-    // gambiarra
-    //========
-    bool y = reachedGoal;
-    y = y;
-    //========
     assert(MathUtils::doubleIsEqual(node->immediateReward, 0.0));
 
     ++node->numberOfVisits;
@@ -225,13 +221,19 @@ void PBBackupFunction::backupChanceNode(SearchNode* node,
     node->_futureReward = 0.0;
     double solvedSum = 0.0;
     double probSum = 0.0;
+    node->reachesGoal = reachedGoal;
 
     for (SearchNode* child : node->children) {
         if (child) {
+            //std::cout << "Child. Prob: " << child->prob << "Future reward: " << child->_futureReward << ". ";
+            //std::cout << "Immediate reward: " << child->immediateReward << ". ";
+            //std::cout << "Reaches goal: " << child->reachesGoal << ". ";
+            //std::cout << "Future utility: " << child->futureReward << ". ";
+            //std::cout << "Utility estimate: " << child->getExpectedRewardEstimate() << std::endl;
             node->futureReward +=
                 (child->prob * child->getExpectedRewardEstimate());
             node->_futureReward +=
-                (child->prob * child->getExpectedRewardEstimate());
+                (child->prob * child->_getExpectedRewardEstimate());
             probSum += child->prob;
 
             if (child->solved) {

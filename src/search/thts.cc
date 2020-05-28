@@ -574,7 +574,7 @@ bool THTS::visitDummyChanceNode(SearchNode* node) {
 
     if (node->children.empty()) {
         node->children.resize(1, nullptr);
-        node->children[0] = createDecisionNode(1.0);
+        node->children[0] = createDecisionNode(1.0, node->cumulativeCost);
     }
     assert(node->children.size() == 1);
 
@@ -641,7 +641,7 @@ SearchNode* THTS::createRootNode() {
     return res;
 }
 
-SearchNode* THTS::createDecisionNode(double const& prob) {
+SearchNode* THTS::createDecisionNode(double const& prob, double const curCumCost) {
     assert(lastUsedNodePoolIndex < nodePool.size());
 
     SearchNode* res = nodePool[lastUsedNodePoolIndex];
@@ -655,16 +655,16 @@ SearchNode* THTS::createDecisionNode(double const& prob) {
     
     calcReward(states[stepsToGoInCurrentState], appliedActionIndex,
                res->immediateReward);
+    //res->cumulativeCost = res->immediateReward;
+    res->cumulativeCost = curCumCost - res->immediateReward;
     //std::cout << "=======================" << std::endl;
     //std::cout << "Current state: " << states[stepsToGoInCurrentState].toStringTrue() << std::endl;
-    //std::cout << "Calculated reward: " << res->immediateReward << std::endl;
-    //std::cout << "=======================" << std::endl;
 
     ++lastUsedNodePoolIndex;
     return res;
 }
 
-SearchNode* THTS::createChanceNode(double const& prob) {
+SearchNode* THTS::createChanceNode(double const& prob, double const curCumCost) {
     assert(lastUsedNodePoolIndex < nodePool.size());
 
     SearchNode* res = nodePool[lastUsedNodePoolIndex];
@@ -675,6 +675,7 @@ SearchNode* THTS::createChanceNode(double const& prob) {
         res = new SearchNode(prob, stepsToGoInCurrentState);
         nodePool[lastUsedNodePoolIndex] = res;
     }
+    res->cumulativeCost = curCumCost;
 
     ++lastUsedNodePoolIndex;
     return res;
