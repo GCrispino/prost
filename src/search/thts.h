@@ -34,7 +34,7 @@ class RecommendationFunction;
 
 
 struct SearchNode {
-    SearchNode(double const& _prob, int const& _stepsToGo)
+    SearchNode(double const& _prob, int const& _stepsToGo, double const& _k_g)
         : children(),
           immediateReward(0.0),
           cumulativeCost(0.0),
@@ -47,7 +47,7 @@ struct SearchNode {
           initialized(false),
           solved(false),
           utility_function(MathUtils::u),
-          k_g(1){}
+          k_g(_k_g){}
 
     ~SearchNode() {
         for (unsigned int i = 0; i < children.size(); ++i) {
@@ -197,6 +197,10 @@ public:
         nodePool.resize(maxNumberOfNodes + 20000, nullptr);
     }
 
+    void setKg(double _k_g) {
+        k_g = _k_g;
+    }
+
     // Methods to create search nodes
     SearchNode* createRootNode();
     SearchNode* createDecisionNode(double const& _prob, double const curCumCost);
@@ -313,6 +317,10 @@ private:
     int numSearchNodesInInitialState;
     int numRewardLockStates;
     int numSingleApplicableActionStates;
+
+
+    // GUBS
+    float k_g;
 
     // Tests which access private members
     friend class THTSTest;
