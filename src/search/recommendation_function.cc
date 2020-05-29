@@ -67,7 +67,7 @@ void ExpectedBestArmRecommendation::recommend(SearchNode const* rootNode,
         //std::cout << index;
         if (actNodes[index]) {
             double reward = actNodes[index]->getExpectedRewardEstimate();
-            double _reward = actNodes[index]->_getExpectedRewardEstimate();
+            //double _reward = actNodes[index]->_getExpectedRewardEstimate();
             //std::cout << ", utility estimate: " << reward << ", reward estimate: " << _reward;
 
             if (MathUtils::doubleIsGreater(reward, stateValue)) {

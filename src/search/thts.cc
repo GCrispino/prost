@@ -311,10 +311,7 @@ void THTS::estimateBestActions(State const& _rootState,
         //std::cout <<
         //"---------------------------------------------------------" <<
         //std::endl;
-        bool reachesGoal = visitDecisionNode(currentRootNode);
-        //if (reachesGoal){
-        //    std::cout << "Trial reaches goal" << std::endl;
-        //}
+        visitDecisionNode(currentRootNode);
         ++currentTrial;
 
         // for(unsigned int i = 0; i < currentRootNode->children.size(); ++i) {
