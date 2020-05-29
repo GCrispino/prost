@@ -221,7 +221,6 @@ void UCB1ActionSelection::_selectAction(SearchNode* node) {
     } else {
         magicConstant = magicConstantScaleFactor *
                         std::abs(node->getExpectedFutureRewardEstimate());
-        std::cout << "Magic constant: " << magicConstant << std::endl;
     }
     assert(node->numberOfVisits > 0);
 
