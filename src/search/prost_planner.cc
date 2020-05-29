@@ -3,6 +3,7 @@
 #include "iterative_deepening_search.h"
 #include "minimal_lookahead_search.h"
 #include "search_engine.h"
+#include "thts.h"
 
 #include "utils/logger.h"
 #include "utils/math_utils.h"
@@ -208,6 +209,11 @@ void ProstPlanner::finishStep(double const& immediateReward) {
         Verbosity::SILENT);
     Logger::logLine("Immediate reward: " + to_string(immediateReward),
                     Verbosity::NORMAL);
+    if(THTS* thts = dynamic_cast<THTS*>(searchEngine)) {
+        if (SearchEngine::actionStates[executedActionIndex].toCompactString() != "noop()")
+            std::cout << "Future reward estimate: " << thts->getCurrentRootNode()->getExpectedRewardEstimate() << std::endl;
+    }
+
 
     // Notify search engine
     searchEngine->finishStep();
