@@ -60,15 +60,15 @@ void ExpectedBestArmRecommendation::recommend(SearchNode const* rootNode,
                                               std::vector<int>& bestActions) {
     double stateValue = -std::numeric_limits<double>::max();
 
-    std::cout << "RECOMMENDATION" << std::endl;
+    //std::cout << "RECOMMENDATION" << std::endl;
     std::vector<SearchNode*> const& actNodes = rootNode->children;
 
     for (unsigned int index = 0; index < actNodes.size(); ++index) {
-        std::cout << index;
+        //std::cout << index;
         if (actNodes[index]) {
             double reward = actNodes[index]->getExpectedRewardEstimate();
             double _reward = actNodes[index]->_getExpectedRewardEstimate();
-            std::cout << ", utility estimate: " << reward << ", reward estimate: " << _reward;
+            //std::cout << ", utility estimate: " << reward << ", reward estimate: " << _reward;
 
             if (MathUtils::doubleIsGreater(reward, stateValue)) {
                 stateValue = reward;
@@ -78,12 +78,12 @@ void ExpectedBestArmRecommendation::recommend(SearchNode const* rootNode,
                 bestActions.push_back(index);
             }
         }
-        std::cout << std::endl;
+        //std::cout << std::endl;
     }
-    std::cout << "Best actions: " << std::endl;
-    for (unsigned int index = 0; index < bestActions.size(); ++index) {
-        std::cout << index << ", " << bestActions[index] << std::endl;
-    }
+    //std::cout << "Best actions: " << std::endl;
+    //for (unsigned int index = 0; index < bestActions.size(); ++index) {
+    //    std::cout << index << ", " << bestActions[index] << std::endl;
+    //}
 }
 
 void MostPlayedArmRecommendation::recommend(SearchNode const* rootNode,

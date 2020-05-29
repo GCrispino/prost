@@ -274,6 +274,9 @@ bool IPCClient::submitAction(vector<string>& actions,
         return false;
     }
     XMLNode const* serverResponse = XMLNode::readNode(socket);
+    //std::cout << "Server response:" << std::endl;
+    //serverResponse->print(std::cout);
+    //std::cout << "Server response:" << std::endl;
 
     bool roundContinues = true;
     if (serverResponse->getName() == "round-end") {
