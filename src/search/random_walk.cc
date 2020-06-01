@@ -24,7 +24,7 @@ void RandomWalk::estimateQValue(State const& state, int actionIndex,
     performRandomWalks(current, actionIndex, qValue);
 }
 
-void RandomWalk::estimateQValues(State const& state,
+bool RandomWalk::estimateQValues(State const& state,
                                  std::vector<int> const& actionsToExpand,
                                  std::vector<double>& qValues) {
     assert(state.stepsToGo() > 0);
@@ -34,6 +34,9 @@ void RandomWalk::estimateQValues(State const& state,
             performRandomWalks(current, index, qValues[index]);
         }
     }
+
+    // TODO
+    return false;
 }
 
 void RandomWalk::performRandomWalks(PDState const& root, int firstActionIndex,

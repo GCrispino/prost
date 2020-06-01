@@ -241,7 +241,7 @@ void IDS::estimateQValue(State const& state, int actionIndex, double& qValue) {
     }
 }
 
-void IDS::estimateQValues(State const& state,
+bool IDS::estimateQValues(State const& state,
                           vector<int> const& actionsToExpand,
                           vector<double>& qValues) {
     if (mlh) {
@@ -252,6 +252,7 @@ void IDS::estimateQValues(State const& state,
         return mlh->estimateQValues(state, actionsToExpand, qValues);
     }
 
+    bool reachesGoal = false;
     HashMap::iterator it = rewardCache.find(state);
     if (it != rewardCache.end()) {
         ++cacheHitsInCurrentStep;
@@ -271,9 +272,10 @@ void IDS::estimateQValues(State const& state,
 
         State currentState(state);
         currentState.stepsToGo() = 1;
+        //reachesGoal = false;
         do {
             ++currentState.stepsToGo();
-            dfs->estimateQValues(currentState, actionsToExpand, qValues);
+            reachesGoal = dfs->estimateQValues(currentState, actionsToExpand, qValues);
         } while (
             moreIterations(currentState.stepsToGo(), actionsToExpand, qValues));
 
@@ -302,6 +304,8 @@ void IDS::estimateQValues(State const& state,
         accumulatedSearchDepthInCurrentStep += currentState.stepsToGo();
         ++numberOfRunsInCurrentStep;
     }
+
+    return reachesGoal;
 }
 
 bool IDS::moreIterations(int const& stepsToGo) {

@@ -146,8 +146,8 @@ void Initializer::printRoundStatistics(std::string indent) const {
 ******************************************************************/
 
 void ExpandNodeInitializer::initialize(SearchNode* node, State const& current) {
-    // Logger::logLine("initializing state:", Verbosity::DEBUG);
-    // Logger::logLine(current.toString(), Verbosity::DEBUG);
+    //Logger::logLine("initializing state:", Verbosity::DEBUG);
+    //Logger::logLine(current.toString(), Verbosity::DEBUG);
 
     assert(node->children.empty());
     node->children.resize(SearchEngine::numberOfActions, nullptr);
@@ -155,7 +155,8 @@ void ExpandNodeInitializer::initialize(SearchNode* node, State const& current) {
     std::vector<int> actionsToExpand = thts->getApplicableActions(current);
     std::vector<double> initialQValues(SearchEngine::numberOfActions,
                                        -std::numeric_limits<double>::max());
-    heuristic->estimateQValues(current, actionsToExpand, initialQValues);
+    bool reachesGoal = heuristic->estimateQValues(current, actionsToExpand, initialQValues);
+
 
     for (unsigned int index = 0; index < node->children.size(); ++index) {
         if (actionsToExpand[index] == index) {
@@ -168,6 +169,7 @@ void ExpandNodeInitializer::initialize(SearchNode* node, State const& current) {
             node->children[index]->initialized = true;
 
             node->numberOfVisits += numberOfInitialVisits;
+
             node->futureReward = std::max(node->futureReward,
                                           node->children[index]->futureReward);
             node->_futureReward = std::max(node->_futureReward,
@@ -178,6 +180,10 @@ void ExpandNodeInitializer::initialize(SearchNode* node, State const& current) {
             //                 Verbosity::DEBUG);
             // Logger::logLine(node->children[index]->toString(), Verbosity::DEBUG);
         }
+    }
+
+    if (reachesGoal){
+        node->futureReward += node->k_g;
     }
     //Logger::logLine("", Verbosity::DEBUG);
 

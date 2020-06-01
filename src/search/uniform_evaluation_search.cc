@@ -28,7 +28,7 @@ void UniformEvaluationSearch::estimateBestActions(
     bestActions = getIndicesOfApplicableActions(_rootState);
 }
 
-void UniformEvaluationSearch::estimateQValues(
+bool UniformEvaluationSearch::estimateQValues(
     State const& state, vector<int> const& actionsToExpand,
     vector<double>& qValues) {
     // Assign the initial value to all applicable actions
@@ -37,6 +37,8 @@ void UniformEvaluationSearch::estimateQValues(
             qValues[index] = initialValue * (double)state.stepsToGo();
         }
     }
+    // TODO
+    return false;
 }
 
 void UniformEvaluationSearch::printConfig(std::string indent) const {

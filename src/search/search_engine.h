@@ -110,7 +110,7 @@ public:
 
     // Start the search engine to estimate the Q-values of all applicable
     // actions
-    virtual void estimateQValues(State const& _rootState,
+    virtual bool estimateQValues(State const& _rootState,
                                  std::vector<int> const& actionsToExpand,
                                  std::vector<double>& qValues) = 0;
 
@@ -399,6 +399,7 @@ public:
         return res;
     }
 
+    bool isAGoalRewardLock(State const& current) const;
 protected:
     /*****************************************************************
                     Calculation of state transition
@@ -449,7 +450,6 @@ protected:
     // if it is a dead end or a goal, i.e., a reward lock with minimal or
     // maximal reward).
     bool isARewardLock(State const& current) const;
-    bool isAGoalRewardLock(State const& current) const;
 
     void printStateValueCacheUsage(
         std::string indent, Verbosity verbosity = Verbosity::VERBOSE) const;

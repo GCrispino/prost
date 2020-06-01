@@ -1,4 +1,5 @@
 #include "depth_first_search.h"
+#include "random_walk.h"
 
 #include "prost_planner.h"
 
@@ -27,26 +28,33 @@ void DepthFirstSearch::estimateQValue(State const& state, int actionIndex,
     assert(state.stepsToGo() <= maxSearchDepth);
 
     applyAction(state, actionIndex, qValue);
+
 }
 
-void DepthFirstSearch::estimateQValues(State const& state,
+bool DepthFirstSearch::estimateQValues(State const& state,
                                        vector<int> const& actionsToExpand,
                                        vector<double>& qValues) {
     assert(state.stepsToGo() > 0);
     assert(state.stepsToGo() <= maxSearchDepth);
     assert(qValues.size() == SearchEngine::numberOfActions);
 
+    bool reachesGoal = false;
     for (unsigned int index = 0; index < qValues.size(); ++index) {
         if (actionsToExpand[index] == index) {
-            applyAction(state, index, qValues[index]);
+            reachesGoal |= applyAction(state, index, qValues[index]);
         }
     }
+    
+    return reachesGoal;
 }
 
-void DepthFirstSearch::applyAction(State const& state, int const& actionIndex,
+bool DepthFirstSearch::applyAction(State const& state, int const& actionIndex,
                                    double& reward) {
     State nxt(state.stepsToGo() - 1);
     calcStateTransition(state, actionIndex, nxt, reward);
+    RandomWalk dummyEngine;
+
+    bool reachesGoal = dummyEngine.isAGoalRewardLock(nxt);
 
     // Logger::logLine(nxt.toString(), Verbosity::DEBUG);
     // Logger::logLine("reward: " + to_string(reward), Verbosity::DEBUG);
@@ -55,23 +63,25 @@ void DepthFirstSearch::applyAction(State const& state, int const& actionIndex,
     if (DeterministicSearchEngine::stateValueCache.find(nxt) !=
         DeterministicSearchEngine::stateValueCache.end()) {
         reward += DeterministicSearchEngine::stateValueCache[nxt];
-        return;
+        return reachesGoal;
     }
 
     // Check if we have reached a leaf
     if (nxt.stepsToGo() == 1) {
         calcOptimalFinalReward(nxt, rewardHelperVar);
         reward += rewardHelperVar;
-        return;
+        return reachesGoal;
     }
 
     //  Expand the state
     double futureResult = -numeric_limits<double>::max();
-    expandState(nxt, futureResult);
+    reachesGoal |= expandState(nxt, futureResult);
     reward += futureResult;
+
+    return reachesGoal;
 }
 
-void DepthFirstSearch::expandState(State const& state, double& result) {
+bool DepthFirstSearch::expandState(State const& state, double& result) {
     assert(!cachingEnabled ||
            (DeterministicSearchEngine::stateValueCache.find(state) ==
             DeterministicSearchEngine::stateValueCache.end()));
@@ -81,10 +91,11 @@ void DepthFirstSearch::expandState(State const& state, double& result) {
     vector<int> actionsToExpand = getApplicableActions(state);
 
     // Apply applicable actions and determine best one
+    bool reachesGoal = false;
     for (unsigned int index = 0; index < actionsToExpand.size(); ++index) {
         if (actionsToExpand[index] == index) {
             double tmp = 0.0;
-            applyAction(state, index, tmp);
+            reachesGoal |= applyAction(state, index, tmp);
             result = std::max(result, tmp);
         }
     }
@@ -93,4 +104,6 @@ void DepthFirstSearch::expandState(State const& state, double& result) {
     if (cachingEnabled) {
         DeterministicSearchEngine::stateValueCache[state] = result;
     }
+
+    return reachesGoal;
 }

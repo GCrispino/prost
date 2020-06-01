@@ -22,7 +22,7 @@ public:
 
     // Start the search engine to estimate the Q-values of all applicable
     // actions
-    void estimateQValues(State const& state,
+    bool estimateQValues(State const& state,
                          std::vector<int> const& actionsToExpand,
                          std::vector<double>& qValues) override;
 
@@ -37,12 +37,12 @@ public:
 private:
     // Returns the reward that can be achieved if the action with
     // index actionIndex is applied to State state
-    void applyAction(State const& state, int const& actionIndex,
+    bool applyAction(State const& state, int const& actionIndex,
                      double& reward);
 
     // Expands State state and calculates the reward that can be
     // achieved by applying any action in that state
-    void expandState(State const& state, double& res);
+    bool expandState(State const& state, double& res);
 
     double rewardHelperVar;
 };

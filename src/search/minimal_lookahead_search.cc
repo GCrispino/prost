@@ -58,7 +58,7 @@ void MinimalLookaheadSearch::estimateQValue(State const& state, int actionIndex,
     }
 }
 
-void MinimalLookaheadSearch::estimateQValues(State const& state,
+bool MinimalLookaheadSearch::estimateQValues(State const& state,
                                              vector<int> const& actionsToExpand,
                                              vector<double>& qValues) {
     HashMap::iterator it = rewardCache.find(state);
@@ -137,6 +137,9 @@ void MinimalLookaheadSearch::estimateQValues(State const& state,
 
         ++numberOfRuns;
     }
+
+    // TODO
+    return false;
 }
 
 void MinimalLookaheadSearch::printRoundStatistics(std::string indent) const {

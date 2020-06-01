@@ -43,7 +43,7 @@ public:
 
     // Start the search engine to estimate the Q-values of all applicable
     // actions
-    void estimateQValues(State const& state,
+    bool estimateQValues(State const& state,
                          std::vector<int> const& actionsToExpand,
                          std::vector<double>& qValues) override;
 
