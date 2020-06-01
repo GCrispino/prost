@@ -473,7 +473,7 @@ bool THTS::visitDecisionNode(SearchNode* node) {
         //std::cout << "Will backupDecisionNode. State: " << states[stepsToGoInCurrentState].toStringTrue();
         //std::cout << "Reaches goal: " << reachesGoal << std::endl;
         //std::cout << "Trial Reward: " << trialReward << ". Reward = " << node->futureReward << std::endl;
-        //backupFunction->backupDecisionNode(node, reachesGoal);
+        backupFunction->backupDecisionNode(node, reachesGoal);
         //std::cout << "New reward = " << node->futureReward << std::endl;
         //std::cout << "========================" << std::endl;
         //std::cout << "1. Will modify trial reward. Current is: " << trialReward << std::endl;
