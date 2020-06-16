@@ -22,6 +22,7 @@ ProstPlanner::ProstPlanner(string& plannerDesc)
       currentStep(-1),
       stepsToGo(SearchEngine::horizon),
       executedActionIndex(-1),
+      executedAction(nullptr),
       numberOfRounds(-1),
       cachingEnabled(true),
       ramLimit(2097152),
@@ -193,7 +194,7 @@ void ProstPlanner::initStep(vector<double> const& nextStateVec,
     manageTimeouts(remainingTime);
 
     // Notify search engine
-    searchEngine->initStep(currentState);
+    searchEngine->initStep(currentState, executedAction);
 }
 
 void ProstPlanner::finishStep(double const& immediateReward) {
@@ -238,13 +239,14 @@ vector<string> ProstPlanner::plan() {
 
     // Pick one of the recommended actions uniformly at random
     executedActionIndex = MathUtils::rnd->randomElement(bestActions);
-    ActionState const& executedAction =
+    ActionState const& _executedAction =
             SearchEngine::actionStates[executedActionIndex];
 
+    executedAction = &_executedAction;
     // PROST's communication with the environment works with strings, so we
     // collect the names of all true action fluents of the chosen action
     vector<string> result;
-    for (ActionFluent const* af : executedAction.scheduledActionFluents) {
+    for (ActionFluent const* af : _executedAction.scheduledActionFluents) {
         result.push_back(af->name);
     }
     return result;
