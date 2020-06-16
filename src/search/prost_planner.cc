@@ -209,9 +209,21 @@ void ProstPlanner::finishStep(double const& immediateReward) {
         Verbosity::SILENT);
     Logger::logLine("Immediate reward: " + to_string(immediateReward),
                     Verbosity::NORMAL);
+
+
     if(THTS* thts = dynamic_cast<THTS*>(searchEngine)) {
-        if (SearchEngine::actionStates[executedActionIndex].toCompactString() != "noop()")
-            std::cout << "Future reward estimate: " << thts->getCurrentRootNode()->getExpectedRewardEstimate() << std::endl;
+        const SearchNode *rootNode = thts->getCurrentRootNode();
+        if (SearchEngine::actionStates[executedActionIndex].toCompactString() != "noop()"){
+            std::cout << "Future reward estimate: " << rootNode->getExpectedRewardEstimate() << std::endl;
+            std::cout << "Node's children" << std::endl;
+
+            std::vector<SearchNode*> const& actNodes = rootNode->children;
+            for (unsigned int index = 0; index < actNodes.size(); ++index) {
+                if (!actNodes[index]) continue;
+                std::cout << "Child " << index << ": " << std::endl;
+                std::cout << "Estimate: " << actNodes[index]->getExpectedRewardEstimate() << std::endl;
+            }
+        }
     }
 
 
