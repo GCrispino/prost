@@ -75,6 +75,7 @@ private:
     int currentStep;
     int stepsToGo;
     int executedActionIndex;
+    const ActionState *executedAction;
     int numberOfRounds;
 
     bool cachingEnabled;
