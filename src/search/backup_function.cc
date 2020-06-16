@@ -63,16 +63,10 @@ void BackupFunction::backupDecisionNodeLeaf(SearchNode* node,
                                             bool reachedGoal) {
     ++node->numberOfVisits;
     float k = reachedGoal ? node->k_g : 0;
-    //std:: cout << "========================" << std::endl;
-    //std::cout << "Backup decision node leaf, futReward = " << futReward << std::endl;
-    //std::cout << "goal: " << reachedGoal << std::endl;
-    //std::cout << "old reward: " << node->futureReward << std::endl;
     node->futureReward = node->utility_function(-futReward) + k;
     node->_futureReward = futReward;
     node->reachesGoal = reachedGoal;
     node->solved = useSolveLabeling;
-    //std::cout << "new reward: " << node->futureReward << std::endl;
-    //std::cout << "========================" << std::endl;
 
     // Logger::logLine("updated dec node leaf:", Verbosity::DEBUG);
     // Logger::logLine(node->toString(), Verbosity::DEBUG);
@@ -100,11 +94,7 @@ void BackupFunction::backupDecisionNode(SearchNode* node, bool reachedGoal) {
         if (child) {
             if (child->initialized) {
                 node->solved &= child->solved;
-                //std::cout << "Child. Future reward: " << child->_futureReward << ". ";
-                //std::cout << "Immediate reward: " << child->immediateReward << ". ";
-                //std::cout << "Reaches goal: " << child->reachesGoal << ". ";
-                //std::cout << "Future utility: " << child->futureReward << ". ";
-                //std::cout << "Utility estimate: " << child->getExpectedRewardEstimate() << std::endl;
+                node->reachesGoal &= child->reachesGoal;
                 node->futureReward = std::max(
                     node->futureReward, child->getExpectedRewardEstimate());
                 node->_futureReward = std::max(
@@ -225,11 +215,6 @@ void PBBackupFunction::backupChanceNode(SearchNode* node,
 
     for (SearchNode* child : node->children) {
         if (child) {
-            //std::cout << "Child. Prob: " << child->prob << "Future reward: " << child->_futureReward << ". ";
-            //std::cout << "Immediate reward: " << child->immediateReward << ". ";
-            //std::cout << "Reaches goal: " << child->reachesGoal << ". ";
-            //std::cout << "Future utility: " << child->futureReward << ". ";
-            //std::cout << "Utility estimate: " << child->getExpectedRewardEstimate() << std::endl;
             node->futureReward +=
                 (child->prob * child->getExpectedRewardEstimate());
             node->_futureReward +=
