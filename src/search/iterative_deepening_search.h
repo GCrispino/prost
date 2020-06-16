@@ -34,7 +34,7 @@ public:
     void finishRound() override;
 
     // Notify the search engine that a new step starts or ends
-    void initStep(State const& current) override;
+    void initStep(State const& current, ActionState const *lastExecutedAction) override;
     void finishStep() override;
 
     // Start the search engine to estimate the Q-value of a single action

@@ -93,7 +93,10 @@ public:
     virtual void finishRound() {}
 
     // Notify the search engine that a new step starts or ends
-    virtual void initStep(State const& /*current*/) {}
+    virtual void initStep(State const& /*current*/, ActionState const *lastExecutedAction = nullptr) {
+        // Just did this to get around -Werror=unused-parameter
+        lastExecutedAction = lastExecutedAction;
+    }
     virtual void finishStep() {}
 
     // Start the search engine to calculate best actions

@@ -15,7 +15,9 @@ public:
     }
 
     // Notify the search engine that a new step starts or ends
-    void initStep(State const& /*current*/) override {
+    void initStep(State const& /*current*/, ActionState const *lastExecutedAction=nullptr) override {
+        // Just did this to get around -Werror=unused-parameter
+        lastExecutedAction = lastExecutedAction;
         numberOfRuns = 0;
         cacheHits = 0;
     }

@@ -155,7 +155,10 @@ void IDS::finishRound() {
     }
 }
 
-void IDS::initStep(State const& current) {
+void IDS::initStep(State const& current, ActionState const *lastExecutedAction = nullptr) {
+    // Just did this to get around -Werror=unused-parameter
+    lastExecutedAction = lastExecutedAction;
+
     isInitialState = (current.stepsToGo() == SearchEngine::horizon);
 
     // Reset per step statistics

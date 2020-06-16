@@ -140,7 +140,7 @@ public:
     void finishRound() override;
 
     // Notify the search engine that a new step starts or ends
-    void initStep(State const& current) override;
+    void initStep(State const& current, const ActionState *lastExecutedAction) override;
     void finishStep() override;
 
     // Start the search engine as main search engine
