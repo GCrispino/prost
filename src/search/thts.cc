@@ -203,7 +203,7 @@ void THTS::finishRound() {
     initializer->finishRound();
 }
 
-void THTS::initStep(State const& current) {
+void THTS::initStep(State const& current, const ActionState *lastExecutedAction = nullptr) {
     PDState rootState(current);
     // Adjust maximal search depth and set root state
     if (rootState.stepsToGo() > maxSearchDepth) {
@@ -231,8 +231,20 @@ void THTS::initStep(State const& current) {
     uniquePolicyDueToRewardLock = false;
     uniquePolicyDueToPreconds = false;
 
+    // get cumulative cost from current root node
+    double reward;
+    double oldCumCost = 0;
+    bool hasOldRootNode = currentRootNode != nullptr;
+    if (hasOldRootNode && lastExecutedAction){
+        oldCumCost = currentRootNode->cumulativeCost;
+        rewardCPF->evaluate(reward, current, *lastExecutedAction);
+    }
+
     // Create root node
     currentRootNode = createRootNode();
+    if (hasOldRootNode && lastExecutedAction){
+        currentRootNode->cumulativeCost = oldCumCost - reward;
+    }
 
     // Notify ingredients of new step
     actionSelection->initStep(current);
@@ -302,7 +314,7 @@ void THTS::estimateBestActions(State const& _rootState,
         return;
     }
 
-    std::cout << "Cumulative cost: " << currentRootNode->cumulativeCost << std::endl;
+    Logger::logLine("Cumulative cost: " + std::to_string(currentRootNode->cumulativeCost), Verbosity::NORMAL);
     // Perform trials until some termination criterion is fullfilled
     while (moreTrials()) {
         // std::cout <<
@@ -384,7 +396,6 @@ bool THTS::moreTrials() {
 }
 
 bool THTS::visitDecisionNode(SearchNode* node) {
-
     bool isGoal = false;
     if (node == currentRootNode) {
         initTrial();
