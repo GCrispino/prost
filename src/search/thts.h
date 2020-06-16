@@ -74,13 +74,7 @@ struct SearchNode {
         return immediateReward + _futureReward;
     }
     double getExpectedRewardEstimate() const {
-        //float k = reachesGoal ? k_g : 0;
         float cost = cumulativeCost;
-        //return utility_function(-(immediateReward + _futureReward)) + k;
-        //std::cout << cost << ", " << immediateReward << ", " << utility_function(cost) << ", ";
-        //std::cout << utility_function(cost - immediateReward) << ", ";
-        //std::cout << futureReward << ", " << utility_function(cost) - utility_function(cost - immediateReward) + futureReward << std::endl;
-
         return utility_function(cost - immediateReward) - utility_function(cost) + futureReward;
     }
 
