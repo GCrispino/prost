@@ -476,6 +476,7 @@ bool THTS::visitDecisionNode(SearchNode* node) {
         }
 
         // Backup this node
+        backupFunction->backupDecisionNode(node, reachesGoal);
         trialReward += node->immediateReward;
 
         // If the backup function labeled the node as solved, we store the
