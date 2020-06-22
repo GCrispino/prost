@@ -221,7 +221,7 @@ void ProstPlanner::finishStep(double const& immediateReward) {
             std::vector<SearchNode*> const& actNodes = rootNode->children;
             for (unsigned int index = 0; index < actNodes.size(); ++index) {
                 if (!actNodes[index]) continue;
-                std::cout << "Child " << index << ": " << std::endl;
+                std::cout << "Child " << index << ", action " << SearchEngine::actionStates[index].toCompactString() << ": " << std::endl;
                 std::cout << "Estimate: " << actNodes[index]->getExpectedRewardEstimate() << std::endl;
             }
         }
