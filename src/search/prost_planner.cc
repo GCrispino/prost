@@ -214,7 +214,7 @@ void ProstPlanner::finishStep(double const& immediateReward) {
 
     if(THTS* thts = dynamic_cast<THTS*>(searchEngine)) {
         const SearchNode *rootNode = thts->getCurrentRootNode();
-        if (SearchEngine::actionStates[executedActionIndex].toCompactString() != "noop()"){
+        if (rootNode){
             std::cout << "Future reward estimate: " << rootNode->getExpectedRewardEstimate() << std::endl;
             std::cout << "Node's children" << std::endl;
 
