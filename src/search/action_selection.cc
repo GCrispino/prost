@@ -82,15 +82,15 @@ int ActionSelection::selectAction(SearchNode* node) {
 
     // If action selection is uniform in the root node and this is the
     // root node, select the least visited action
-    if (selectLeastVisitedActionInRoot && (node == currentRootNode) &&
-        bestActionIndices.empty()) {
-        selectLeastVisitedAction(node);
-    }
+    //if (selectLeastVisitedActionInRoot && (node == currentRootNode) &&
+    //    bestActionIndices.empty()) {
+    //    selectLeastVisitedAction(node);
+    //}
 
     // Select an action has been selected significantly less often than another
-    if (bestActionIndices.empty()) {
-        selectActionBasedOnVisitDifference(node);
-    }
+    //if (bestActionIndices.empty()) {
+    //    selectActionBasedOnVisitDifference(node);
+    //}
 
     // Select an action with the action selection method of this
     // action selection
