@@ -34,10 +34,10 @@ class RecommendationFunction;
 
 
 struct SearchNode {
-    SearchNode(double const& _prob, int const& _stepsToGo, double const& _k_g)
+    SearchNode(double const& _prob, int const& _stepsToGo, double const& _k_g, double const& _cumCost=0.0)
         : children(),
           immediateReward(0.0),
-          cumulativeCost(0.0),
+          cumulativeCost(_cumCost),
           prob(_prob),
           stepsToGo(_stepsToGo),
           futureReward(-std::numeric_limits<double>::max()),
@@ -196,6 +196,10 @@ public:
         k_g = _k_g;
     }
 
+    void setCumulativeCost(double cumCost) {
+        cumulativeCost = cumCost;
+    }
+
     // Methods to create search nodes
     SearchNode* createRootNode();
     SearchNode* createDecisionNode(double const& _prob, double const curCumCost);
@@ -316,6 +320,7 @@ private:
 
     // GUBS
     float k_g;
+    float cumulativeCost;
 
     // Tests which access private members
     friend class THTSTest;

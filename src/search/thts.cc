@@ -113,6 +113,10 @@ bool THTS::setValueFromString(std::string& param, std::string& value) {
         setKg(atof(value.c_str()));
         return true;
     }
+    else if (param == "-cumcost"){
+        setCumulativeCost(atof(value.c_str()));
+        return true;
+    }
 
     return SearchEngine::setValueFromString(param, value);
 }
@@ -233,7 +237,7 @@ void THTS::initStep(State const& current, const ActionState *lastExecutedAction 
 
     // get cumulative cost from current root node
     double reward;
-    double oldCumCost = 0;
+    double oldCumCost = cumulativeCost;
     bool hasOldRootNode = currentRootNode != nullptr;
     if (hasOldRootNode && lastExecutedAction){
         oldCumCost = currentRootNode->cumulativeCost;
@@ -244,6 +248,9 @@ void THTS::initStep(State const& current, const ActionState *lastExecutedAction 
     currentRootNode = createRootNode();
     if (hasOldRootNode && lastExecutedAction){
         currentRootNode->cumulativeCost = oldCumCost - reward;
+    }
+    else{
+        currentRootNode->cumulativeCost = oldCumCost;
     }
 
     // Notify ingredients of new step
