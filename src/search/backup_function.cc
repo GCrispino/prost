@@ -63,7 +63,8 @@ void BackupFunction::backupDecisionNodeLeaf(SearchNode* node,
                                             bool reachedGoal) {
     ++node->numberOfVisits;
     float k = reachedGoal ? node->k_g : 0;
-    node->futureReward = node->utility_function(-futReward) + k;
+    //node->futureReward = node->utility_function(-futReward) + k;
+    node->futureReward = node->utility_function(node->cumulativeCost - futReward) + k;
     node->_futureReward = futReward;
     node->reachesGoal = reachedGoal;
     node->solved = useSolveLabeling;
@@ -142,7 +143,10 @@ void MCBackupFunction::backupChanceNode(SearchNode* node,
     ++node->numberOfVisits;
 
     float k = reachedGoal ? node->k_g : 0;
-    float utility = node->utility_function(-futReward) + k;
+    //std::cout << "cumulativeCost: " << node->cumulativeCost;
+    //std::cout << "fut reward: " << futReward << ", " << node->cumulativeCost - futReward << std::endl;
+    float utility = node->utility_function(node->cumulativeCost - futReward) + k;
+    //float utility = node->utility_function(-futReward) + k;
     node->reachesGoal = reachedGoal;
     node->futureReward =
         node->futureReward +
