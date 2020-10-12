@@ -34,7 +34,7 @@ class RecommendationFunction;
 
 
 struct SearchNode {
-    SearchNode(double const& _prob, int const& _stepsToGo, double const& _k_g, double const& _cumCost=0.0)
+    SearchNode(double const& _prob, int const& _stepsToGo, double const& _k_g, double const& _lamb, double const& _cumCost=0.0)
         : children(),
           immediateReward(0.0),
           cumulativeCost(_cumCost),
@@ -46,8 +46,11 @@ struct SearchNode {
           numberOfVisits(0),
           initialized(false),
           solved(false),
-          utility_function(MathUtils::u),
-          k_g(_k_g){}
+          // utility_function(MathUtils::u),
+          k_g(_k_g),
+          lamb(_lamb){
+            utility_function = MathUtils::createExpUtility(lamb);
+          }
 
     ~SearchNode() {
         for (unsigned int i = 0; i < children.size(); ++i) {
@@ -111,9 +114,9 @@ struct SearchNode {
     bool solved;
     
     // Utility function
-    float (*utility_function)(float);
     std::function<float(float)> utility_function;
     float k_g;
+    float lamb;
 };
 
 class THTS : public ProbabilisticSearchEngine {
@@ -201,6 +204,9 @@ public:
         cumulativeCost = cumCost;
     }
 
+    void setLamb(double _lamb) {
+        lamb = _lamb;
+    }
     // Methods to create search nodes
     SearchNode* createRootNode();
     SearchNode* createDecisionNode(double const& _prob, double const curCumCost);
@@ -322,6 +328,7 @@ private:
     // GUBS
     float k_g;
     float cumulativeCost;
+    float lamb;
 
     // Tests which access private members
     friend class THTSTest;

@@ -52,7 +52,8 @@ THTS::THTS(std::string _name)
       numSearchNodesInInitialState(0),
       numRewardLockStates(0),
       numSingleApplicableActionStates(0),
-      k_g(1){
+      k_g(1),
+      lamb(-0.1){
     setMaxNumberOfNodes(24000000);
     setTimeout(1.0);
     setRecommendationFunction(new ExpectedBestArmRecommendation(this));
@@ -115,6 +116,10 @@ bool THTS::setValueFromString(std::string& param, std::string& value) {
     }
     else if (param == "-cumcost"){
         setCumulativeCost(atof(value.c_str()));
+        return true;
+    }
+    else if (param == "-lamb"){
+        setLamb(atof(value.c_str()));
         return true;
     }
 
@@ -660,7 +665,7 @@ SearchNode* THTS::createRootNode() {
     if (res) {
         res->reset(1.0, stepsToGoInCurrentState);
     } else {
-        res = new SearchNode(1.0, stepsToGoInCurrentState, k_g);
+        res = new SearchNode(1.0, stepsToGoInCurrentState, k_g, lamb);
         nodePool[0] = res;
     }
     res->immediateReward = 0.0;
@@ -677,7 +682,7 @@ SearchNode* THTS::createDecisionNode(double const& prob, double const curCumCost
     if (res) {
         res->reset(prob, stepsToGoInNextState);
     } else {
-        res = new SearchNode(prob, stepsToGoInNextState, k_g);
+        res = new SearchNode(prob, stepsToGoInNextState, k_g, lamb);
         nodePool[lastUsedNodePoolIndex] = res;
     }
     
@@ -698,7 +703,7 @@ SearchNode* THTS::createChanceNode(double const& prob, double const curCumCost) 
     if (res) {
         res->reset(prob, stepsToGoInCurrentState);
     } else {
-        res = new SearchNode(prob, stepsToGoInCurrentState, k_g);
+        res = new SearchNode(prob, stepsToGoInCurrentState, k_g, lamb);
         nodePool[lastUsedNodePoolIndex] = res;
     }
     res->cumulativeCost = curCumCost;
