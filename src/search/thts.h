@@ -112,6 +112,7 @@ struct SearchNode {
     
     // Utility function
     float (*utility_function)(float);
+    std::function<float(float)> utility_function;
     float k_g;
 };
 

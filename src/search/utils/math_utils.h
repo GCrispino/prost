@@ -66,9 +66,8 @@ public:
     static std::unique_ptr<Random<>> rnd;
 
     // utility function
-    static float u(float cost){
-        float lamb = -0.1;
-        return exp(lamb * cost);
+    static std::function<float(float)> createExpUtility(float lamb){
+        return [lamb](float cost){ return exp(lamb * cost);};
     }
 
 private:
