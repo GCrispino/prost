@@ -243,6 +243,7 @@ void UCB1ActionSelection::_selectAction(SearchNode* node) {
         parentVisitPart *= std::log((double)node->numberOfVisits);
     }
 
+    Logger::logLine("UCT values: ", Verbosity::DEBUG);
     for (unsigned int childIndex = 0; childIndex < node->children.size();
          ++childIndex) {
         if (node->children[childIndex] &&
@@ -257,6 +258,7 @@ void UCB1ActionSelection::_selectAction(SearchNode* node) {
                 visitPart;
 
             assert(!MathUtils::doubleIsMinusInfinity(UCTValue));
+            Logger::log("  " + std::to_string(UCTValue) + ",", Verbosity::DEBUG);
 
             if (MathUtils::doubleIsGreater(UCTValue, bestUCTValue)) {
                 bestActionIndices.clear();
@@ -267,6 +269,7 @@ void UCB1ActionSelection::_selectAction(SearchNode* node) {
             }
         }
     }
+    Logger::logLine("Best UCTValue: " + std::to_string(bestUCTValue), Verbosity::DEBUG);
 }
 
 /******************************************************************

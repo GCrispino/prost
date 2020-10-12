@@ -321,6 +321,7 @@ void THTS::estimateBestActions(State const& _rootState,
         return;
     }
 
+    Logger::logLine("State: " + _rootState.toStringTrue(), Verbosity::DEBUG);
     Logger::logLine("Cumulative cost: " + std::to_string(currentRootNode->cumulativeCost), Verbosity::NORMAL);
     // Perform trials until some termination criterion is fullfilled
     while (moreTrials()) {
@@ -334,6 +335,10 @@ void THTS::estimateBestActions(State const& _rootState,
         visitDecisionNode(currentRootNode);
         ++currentTrial;
 
+        Logger::logLine("===================================", Verbosity::DEBUG);
+        Logger::logLine("TRIAL " + std::to_string(currentTrial + 1), Verbosity::DEBUG);
+        Logger::logLine("===================================", Verbosity::DEBUG);
+
         // for(unsigned int i = 0; i < currentRootNode->children.size(); ++i) {
         //     if (currentRootNode->children[i]) {
         //         Logger::logLine(SearchEngine::actionStates[i].toCompactString() +
@@ -344,7 +349,6 @@ void THTS::estimateBestActions(State const& _rootState,
         // assert(currentTrial != 100);
     }
 
-    //std::cout << "State: " << _rootState.toStringTrue() << std::endl;
     recommendationFunction->recommend(currentRootNode, bestActions);
     assert(!bestActions.empty());
 
@@ -409,6 +413,10 @@ bool THTS::visitDecisionNode(SearchNode* node) {
     } else {
         // Continue trial (i.e., set next state to be the current)
         initTrialStep();
+        Logger::logLine("Decision node:", Verbosity::DEBUG);
+        Logger::logLineIf(
+            states[stepsToGoInCurrentState].toString(), Verbosity::DEBUG,
+            "Current state: " + states[stepsToGoInCurrentState].toCompactString(), Verbosity::DEBUG);
 
         // Check if there is a "special" reason to stop this trial (currently,
         // this is the case if the state value of the current state is cached,
@@ -445,17 +453,16 @@ bool THTS::visitDecisionNode(SearchNode* node) {
         assert(node->children[appliedActionIndex]);
         assert(!node->children[appliedActionIndex]->solved);
 
-        // Logger::logLine("Chosen action is: " +
-        //                 SearchEngine::actionStates[appliedActionIndex].toCompactString(),
-        //                 Verbosity::DEBUG);
+        Logger::logLine("Chosen action is: " + SearchEngine::actionStates[appliedActionIndex].toCompactString(),
+                        Verbosity::DEBUG);
 
         // Sample successor state
         calcSuccessorState(states[stepsToGoInCurrentState], appliedActionIndex,
                            states[stepsToGoInNextState]);
 
-        // Logger::logLine("Sampled PDState is " +
-        //                 states[stepsToGoInNextState].toCompactString(),
-        //                 Verbosity::DEBUG);
+        Logger::logLine("Sampled PDState is " +
+                        states[stepsToGoInNextState].toString(),
+                        Verbosity::DEBUG);
 
         lastProbabilisticVarIndex = -1;
         for (unsigned int i = 0; i < State::numberOfProbabilisticStateFluents;
@@ -555,6 +562,10 @@ bool THTS::currentStateIsSolved(SearchNode* node, bool &isGoal) {
 }
 
 bool THTS::visitChanceNode(SearchNode* node) {
+    Logger::logLine("Chance node:", Verbosity::DEBUG);
+    Logger::logLineIf(
+        states[stepsToGoInCurrentState].toString(), Verbosity::DEBUG,
+        "Current state: " + states[stepsToGoInCurrentState].toCompactString(), Verbosity::DEBUG);
     while (states[stepsToGoInNextState]
                .probabilisticStateFluentAsPD(chanceNodeVarIndex)
                .isDeterministic()) {
@@ -581,6 +592,10 @@ bool THTS::visitChanceNode(SearchNode* node) {
 }
 
 bool THTS::visitDummyChanceNode(SearchNode* node) {
+    Logger::logLine("Dummy chance Node:", Verbosity::DEBUG);
+    Logger::logLineIf(
+        states[stepsToGoInCurrentState].toString(), Verbosity::DEBUG,
+        "Current state: " + states[stepsToGoInCurrentState].toCompactString(), Verbosity::DEBUG);
     State::calcStateFluentHashKeys(states[stepsToGoInNextState]);
     State::calcStateHashKey(states[stepsToGoInNextState]);
 

@@ -114,11 +114,11 @@ void BackupFunction::backupDecisionNode(SearchNode* node, bool reachedGoal) {
         lockBackup = useBackupLock;
     }
 
-    // Logger::logLine("updated dec node with " +
-    //                 std::to_string(node->stepsToGo) +
-    //                 " steps-to-go and immediate reward " +
-    //                 std::to_string(node->immediateReward), Verbosity::DEBUG);
-    // Logger::logLine(node->toString(), Verbosity::DEBUG);
+    Logger::logLine("updated dec node with " +
+                    std::to_string(node->stepsToGo) +
+                    " steps-to-go and immediate reward " +
+                    std::to_string(node->immediateReward), Verbosity::DEBUG);
+    Logger::logLine(node->toString(), Verbosity::DEBUG);
 }
 
 /******************************************************************
@@ -143,10 +143,13 @@ void MCBackupFunction::backupChanceNode(SearchNode* node,
     ++node->numberOfVisits;
 
     float k = reachedGoal ? node->k_g : 0;
-    //std::cout << "cumulativeCost: " << node->cumulativeCost;
-    //std::cout << "fut reward: " << futReward << ", " << node->cumulativeCost - futReward << std::endl;
     float utility = node->utility_function(node->cumulativeCost - futReward) + k;
     //float utility = node->utility_function(-futReward) + k;
+
+    Logger::logLine("cumcost: " + std::to_string(node->cumulativeCost) + "fut reward: " + std::to_string(futReward) + ", " + std::to_string(node->cumulativeCost - futReward), Verbosity::DEBUG);
+    Logger::logLine("calculated utility: " + std::to_string(utility), Verbosity::DEBUG);
+    Logger::logLine("current value: " + std::to_string(node->futureReward), Verbosity::DEBUG);
+    
     node->reachesGoal = reachedGoal;
     node->futureReward =
         node->futureReward +
@@ -158,8 +161,9 @@ void MCBackupFunction::backupChanceNode(SearchNode* node,
         initialLearningRate * (futReward - node->_futureReward) /
             (1.0 + (learningRateDecay * (double)node->numberOfVisits));
 
-    // Logger::logLine("updated chance node:", Verbosity::DEBUG);
-    // Logger::logLine(node->toString(), Verbosity::DEBUG);
+    Logger::logLine("updated value: " + std::to_string(node->futureReward), Verbosity::DEBUG);
+    Logger::logLine("updated chance node:", Verbosity::DEBUG);
+    Logger::logLine(node->toString(), Verbosity::DEBUG);
 }
 
 /******************************************************************
