@@ -12,8 +12,8 @@ void LogicalExpression::calculateDomainAsInterval(Domains const& /*domains*/,
 void StateFluent::calculateDomainAsInterval(Domains const& domains,
                                             ActionState const& /*action*/,
                                             double& minRes, double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
     assert(index < domains.size());
     assert(!domains[index].empty());
     minRes = *(domains[index].begin());
@@ -23,8 +23,8 @@ void StateFluent::calculateDomainAsInterval(Domains const& domains,
 void ActionFluent::calculateDomainAsInterval(Domains const& /*domains*/,
                                              ActionState const& action,
                                              double& minRes, double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
     assert(index < action.state.size());
     minRes = action[index];
     maxRes = action[index];
@@ -34,8 +34,8 @@ void NumericConstant::calculateDomainAsInterval(Domains const& /*domains*/,
                                                 ActionState const& /*action*/,
                                                 double& minRes,
                                                 double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
     minRes = value;
     maxRes = value;
 }
@@ -47,8 +47,8 @@ void NumericConstant::calculateDomainAsInterval(Domains const& /*domains*/,
 void Conjunction::calculateDomainAsInterval(Domains const& domains,
                                             ActionState const& action,
                                             double& minRes, double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
 
     // This must be false if all variables are true
     bool minIsFalse = false;
@@ -80,8 +80,8 @@ void Conjunction::calculateDomainAsInterval(Domains const& domains,
 void Disjunction::calculateDomainAsInterval(Domains const& domains,
                                             ActionState const& action,
                                             double& minRes, double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
 
     // This must be false if all variables are false
     bool maxIsTrue = false;
@@ -115,8 +115,8 @@ void EqualsExpression::calculateDomainAsInterval(Domains const& domains,
                                                  double& minRes,
                                                  double& maxRes) {
     assert(exprs.size() == 2);
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
 
     double lhsMin = numeric_limits<double>::max();
     double lhsMax = -numeric_limits<double>::max();
@@ -150,8 +150,8 @@ void GreaterExpression::calculateDomainAsInterval(Domains const& domains,
                                                   ActionState const& action,
                                                   double& minRes,
                                                   double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
 
     assert(exprs.size() == 2);
 
@@ -186,8 +186,8 @@ void LowerExpression::calculateDomainAsInterval(Domains const& domains,
                                                 ActionState const& action,
                                                 double& minRes,
                                                 double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
 
     assert(exprs.size() == 2);
 
@@ -221,8 +221,8 @@ void LowerExpression::calculateDomainAsInterval(Domains const& domains,
 void GreaterEqualsExpression::calculateDomainAsInterval(
     Domains const& domains, ActionState const& action, double& minRes,
     double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
 
     assert(exprs.size() == 2);
 
@@ -258,8 +258,8 @@ void LowerEqualsExpression::calculateDomainAsInterval(Domains const& domains,
                                                       ActionState const& action,
                                                       double& minRes,
                                                       double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
 
     assert(exprs.size() == 2);
 
@@ -292,8 +292,8 @@ void LowerEqualsExpression::calculateDomainAsInterval(Domains const& domains,
 void Addition::calculateDomainAsInterval(Domains const& domains,
                                          ActionState const& action,
                                          double& minRes, double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
 
     // Addition on Intervals:
     // [x1,x2] + [y1,y2] = [x1+y1, x2+y2]
@@ -313,8 +313,8 @@ void Addition::calculateDomainAsInterval(Domains const& domains,
 void Subtraction::calculateDomainAsInterval(Domains const& domains,
                                             ActionState const& action,
                                             double& minRes, double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
 
     // Subtraction on Intervals:
     // [x1,x2] - [y1,y2] = [x1-y2, x2-y1]
@@ -334,8 +334,8 @@ void Subtraction::calculateDomainAsInterval(Domains const& domains,
 void Multiplication::calculateDomainAsInterval(Domains const& domains,
                                                ActionState const& action,
                                                double& minRes, double& maxRes) {
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
 
     // Multiplication on Intervals:
     // [x1,x2] * [y1,y2] = [min(x1*y1, x1*y2, x2*y1, x2*y2), max(x1*y1, x1*y2,
@@ -360,8 +360,8 @@ void Division::calculateDomainAsInterval(Domains const& domains,
                                          ActionState const& action,
                                          double& minRes, double& maxRes) {
     assert(exprs.size() == 2);
-    assert(minRes = numeric_limits<double>::max());
-    assert(maxRes = -numeric_limits<double>::max());
+    assert((minRes = numeric_limits<double>::max()));
+    assert((maxRes = -numeric_limits<double>::max()));
 
     double lhsMin = numeric_limits<double>::max();
     double lhsMax = -numeric_limits<double>::max();
